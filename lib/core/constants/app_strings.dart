@@ -356,6 +356,8 @@ class _L10nStrings {
   String get cancelOrderConfirm => _l10n.tr('cancelOrderConfirm');
   String get deleteOrder => _l10n.tr('deleteOrder');
   String get deleteOrderConfirm => _l10n.tr('deleteOrderConfirm');
+  String get deleteReturn => _l10n.tr('deleteReturn');
+  String get returnDeleted => _l10n.tr('returnDeleted');
   String get recordPayment => _l10n.tr('recordPayment');
   String get paymentAmount => _l10n.tr('paymentAmount');
   String get balanceDue => _l10n.tr('balanceDue');

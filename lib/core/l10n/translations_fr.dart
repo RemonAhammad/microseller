@@ -162,6 +162,8 @@ const translationsFr = <String, String>{
   'cancelOrderConfirm': 'Le stock sera restauré s\'il a été déduit.',
   'deleteOrder': 'Supprimer la commande',
   'deleteOrderConfirm': 'Cette action est irréversible.',
+  'deleteReturn': 'Supprimer le retour',
+  'returnDeleted': 'Retour supprimé',
   'recordPayment': 'Enregistrer un paiement',
   'paymentAmount': 'Montant du paiement',
   'balanceDue': 'Solde dû',

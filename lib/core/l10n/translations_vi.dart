@@ -162,6 +162,8 @@ const translationsVi = <String, String>{
   'cancelOrderConfirm': 'Kho sẽ được khôi phục nếu đã bị trừ.',
   'deleteOrder': 'Xóa đơn hàng',
   'deleteOrderConfirm': 'Không thể hoàn tác.',
+  'deleteReturn': 'Xóa đơn trả hàng',
+  'returnDeleted': 'Đã xóa đơn trả hàng',
   'recordPayment': 'Ghi nhận thanh toán',
   'paymentAmount': 'Số tiền thanh toán',
   'balanceDue': 'Số dư còn nợ',

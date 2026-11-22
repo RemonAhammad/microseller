@@ -162,6 +162,8 @@ const translationsBn = <String, String>{
   'cancelOrderConfirm': 'স্টক কেটে নেওয়া হয়ে থাকলে তা পুনরুদ্ধার করা হবে।',
   'deleteOrder': 'অর্ডার মুছুন',
   'deleteOrderConfirm': 'এটি পূর্বাবস্থায় ফেরানো যাবে না।',
+  'deleteReturn': 'রিটার্ন মুছুন',
+  'returnDeleted': 'রিটার্ন মুছে ফেলা হয়েছে',
   'recordPayment': 'পেমেন্ট রেকর্ড',
   'paymentAmount': 'পেমেন্টের পরিমাণ',
   'balanceDue': 'বকেয়া ব্যালেন্স',

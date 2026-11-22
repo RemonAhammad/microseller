@@ -162,6 +162,8 @@ const translationsMs = <String, String>{
   'cancelOrderConfirm': 'Stok akan dipulihkan jika telah ditolak.',
   'deleteOrder': 'Padam Pesanan',
   'deleteOrderConfirm': 'Ini tidak boleh dibuat asal.',
+  'deleteReturn': 'Padam Pemulangan',
+  'returnDeleted': 'Pemulangan dipadam',
   'recordPayment': 'Rekod Pembayaran',
   'paymentAmount': 'Jumlah Pembayaran',
   'balanceDue': 'Baki Tertunggak',

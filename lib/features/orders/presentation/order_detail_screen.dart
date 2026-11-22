@@ -212,14 +212,19 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
                           contentPadding: EdgeInsets.zero,
                         )),
                   ],
-                  const PopupMenuDivider(),
-                  PopupMenuItem(
-                      value: 'delete',
-                      child: ListTile(
-                        leading: const ThinIcon(tabler.Trash.new, color: Colors.red),
-                        title: Text(s.delete, style: const TextStyle(color: Colors.red)),
-                        contentPadding: EdgeInsets.zero,
-                      )),
+                  // A return can be deleted only before it is received: after
+                  // that it has moved stock and money (reject it instead).
+                  if (!order.isReturn ||
+                      order.returnStatus == ReturnStatus.requested) ...[
+                    const PopupMenuDivider(),
+                    PopupMenuItem(
+                        value: 'delete',
+                        child: ListTile(
+                          leading: const ThinIcon(tabler.Trash.new, color: Colors.red),
+                          title: Text(s.delete, style: const TextStyle(color: Colors.red)),
+                          contentPadding: EdgeInsets.zero,
+                        )),
+                  ],
                 ],
               ),
             ],
@@ -654,10 +659,11 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
       case 'delete':
         if (!context.mounted) return;
         final sd = AppStrings.of(context);
+        final title = order.isReturn ? sd.deleteReturn : sd.deleteOrder;
         final ok = await ConfirmDialog.show(
           context,
-          title: sd.deleteOrder,
-          message: '${sd.deleteOrder} ${order.orderNumber}? ${sd.deleteOrderConfirm}',
+          title: title,
+          message: '$title ${order.orderNumber}? ${sd.deleteOrderConfirm}',
           confirmText: sd.delete,
           isDestructive: true,
           icon: tabler.Trash.new,
@@ -668,7 +674,14 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
               .read(orderProvider.notifier)
               .deleteOrder(order.id);
           final failed = ref.read(orderProvider).hasError;
-          showOutcome(messenger, failed ? sd.errorOccurred : sd.orderDeleted, failed: failed);
+          showOutcome(
+              messenger,
+              failed
+                  ? sd.errorOccurred
+                  : order.isReturn
+                      ? sd.returnDeleted
+                      : sd.orderDeleted,
+              failed: failed);
           if (!failed && context.mounted) context.pop();
         }
         break;

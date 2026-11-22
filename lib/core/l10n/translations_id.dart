@@ -162,6 +162,8 @@ const translationsId = <String, String>{
   'cancelOrderConfirm': 'Stok akan dipulihkan jika telah dikurangi.',
   'deleteOrder': 'Hapus Pesanan',
   'deleteOrderConfirm': 'Ini tidak dapat dibatalkan.',
+  'deleteReturn': 'Hapus Retur',
+  'returnDeleted': 'Retur dihapus',
   'recordPayment': 'Catat Pembayaran',
   'paymentAmount': 'Jumlah Pembayaran',
   'balanceDue': 'Saldo Tertunggak',

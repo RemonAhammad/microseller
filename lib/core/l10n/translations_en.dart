@@ -162,6 +162,8 @@ const translationsEn = <String, String>{
   'cancelOrderConfirm': 'Stock will be restored if it was deducted.',
   'deleteOrder': 'Delete Order',
   'deleteOrderConfirm': 'This cannot be undone.',
+  'deleteReturn': 'Delete Return',
+  'returnDeleted': 'Return deleted',
   'recordPayment': 'Record Payment',
   'paymentAmount': 'Payment Amount',
   'balanceDue': 'Balance Due',

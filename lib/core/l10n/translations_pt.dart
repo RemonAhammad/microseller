@@ -162,6 +162,8 @@ const translationsPt = <String, String>{
   'cancelOrderConfirm': 'O estoque será restaurado se foi deduzido.',
   'deleteOrder': 'Excluir pedido',
   'deleteOrderConfirm': 'Isso não pode ser desfeito.',
+  'deleteReturn': 'Excluir devolução',
+  'returnDeleted': 'Devolução excluída',
   'recordPayment': 'Registrar pagamento',
   'paymentAmount': 'Valor do pagamento',
   'balanceDue': 'Saldo pendente',

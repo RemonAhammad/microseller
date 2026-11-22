@@ -162,6 +162,8 @@ const translationsTr = <String, String>{
   'cancelOrderConfirm': 'Düşülen stok geri yüklenecektir.',
   'deleteOrder': 'Siparişi Sil',
   'deleteOrderConfirm': 'Bu işlem geri alınamaz.',
+  'deleteReturn': 'İadeyi Sil',
+  'returnDeleted': 'İade silindi',
   'recordPayment': 'Ödeme Kaydet',
   'paymentAmount': 'Ödeme Tutarı',
   'balanceDue': 'Kalan Bakiye',

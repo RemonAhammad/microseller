@@ -162,6 +162,8 @@ const translationsTh = <String, String>{
   'cancelOrderConfirm': 'สต็อกจะถูกคืนหากได้ถูกหักไปแล้ว',
   'deleteOrder': 'ลบคำสั่งซื้อ',
   'deleteOrderConfirm': 'ไม่สามารถยกเลิกได้',
+  'deleteReturn': 'ลบการคืนสินค้า',
+  'returnDeleted': 'ลบการคืนสินค้าแล้ว',
   'recordPayment': 'บันทึกการชำระเงิน',
   'paymentAmount': 'จำนวนเงินที่ชำระ',
   'balanceDue': 'ยอดค้างชำระ',

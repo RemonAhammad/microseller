@@ -162,6 +162,8 @@ const translationsUr = <String, String>{
   'cancelOrderConfirm': 'اگر اسٹاک کم کیا گیا تھا تو بحال ہو جائے گا۔',
   'deleteOrder': 'آرڈر حذف کریں',
   'deleteOrderConfirm': 'یہ واپس نہیں ہو سکتا۔',
+  'deleteReturn': 'واپسی حذف کریں',
+  'returnDeleted': 'واپسی حذف کر دی گئی',
   'recordPayment': 'ادائیگی ریکارڈ کریں',
   'paymentAmount': 'ادائیگی کی رقم',
   'balanceDue': 'واجب الادا بقایا',

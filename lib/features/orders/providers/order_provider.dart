@@ -954,12 +954,46 @@ class OrderNotifier extends _$OrderNotifier {
     });
   }
 
+  /// A return can be deleted only while it is requested: nothing has moved
+  /// yet (no restock, no credit, no refund), so deleting it is undoing its
+  /// creation. A received or refunded return changed stock, the customer's
+  /// balance and the original order's payments; the sale path below would
+  /// restock it again and leave the refund behind, so it's refused.
+  Future<void> _deleteRequestedReturn(Isar isar, Order ret) async {
+    if (ret.returnStatus != ReturnStatus.requested) {
+      throw StateError(
+          'Only a requested return can be deleted (${ret.orderNumber} is ${ret.returnStatus.name})');
+    }
+    await isar.orders.delete(ret.id);
+    if (ret.originalOrderId <= 0) return;
+    final original = await isar.orders.get(ret.originalOrderId);
+    if (original == null) return;
+    // The original shows where its latest live return stands, or none.
+    final others = await isar.orders
+        .filter()
+        .isReturnEqualTo(true)
+        .originalOrderIdEqualTo(original.id)
+        .not()
+        .returnStatusEqualTo(ReturnStatus.rejected)
+        .findAll()
+      ..sort((a, b) => a.id.compareTo(b.id));
+    await isar.orders.put(original.copyWith(
+      returnStatus: others.isEmpty ? ReturnStatus.none : others.last.returnStatus,
+      updatedAt: DateTime.now(),
+    ));
+  }
+
   Future<void> deleteOrder(int id) async {
     state = await AsyncValue.guard(() async {
       final isar = await ref.read(isarProvider.future);
       await isar.writeTxn(() async {
         final order = await isar.orders.get(id);
         if (order == null) return;
+
+        if (order.isReturn) {
+          await _deleteRequestedReturn(isar, order);
+          return;
+        }
 
         final wasStockDeducted =
             order.orderStatus != OrderStatus.pending &&

@@ -162,6 +162,8 @@ const translationsAr = <String, String>{
   'cancelOrderConfirm': 'سيتم استعادة المخزون إذا تم خصمه.',
   'deleteOrder': 'حذف الطلب',
   'deleteOrderConfirm': 'لا يمكن التراجع عن هذا.',
+  'deleteReturn': 'حذف المرتجع',
+  'returnDeleted': 'تم حذف المرتجع',
   'recordPayment': 'تسجيل دفعة',
   'paymentAmount': 'مبلغ الدفعة',
   'balanceDue': 'الرصيد المستحق',
