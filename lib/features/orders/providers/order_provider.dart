@@ -13,6 +13,7 @@ import '../../../data/services/db_worker.dart';
 import '../../../data/services/dues_service.dart';
 import '../../../data/services/isar_reload.dart';
 import '../../../data/services/isar_service.dart';
+import '../../../data/services/returnable_service.dart';
 
 part 'order_provider.g.dart';
 
@@ -594,6 +595,28 @@ class OrderNotifier extends _$OrderNotifier {
     return applied;
   }
 
+  /// Throws [ReturnExceedsSold] when [items] ask for more of a line, or a
+  /// serial, than earlier returns of [original] left.
+  static void _checkReturnable(Order original, List<Order> returns, List<OrderItem> items) {
+    final left = returnableFor(original, returns);
+    final qtyLeft = <String, double>{};
+    final serialsLeft = <String>{};
+    for (var i = 0; i < original.items.length; i++) {
+      final it = original.items[i];
+      final k = '${it.productId}|${it.variantCombinationKey}';
+      qtyLeft[k] = (qtyLeft[k] ?? 0) + left[i].qty;
+      serialsLeft.addAll(left[i].serials);
+    }
+    for (final it in items) {
+      final k = '${it.productId}|${it.variantCombinationKey}';
+      final remaining = (qtyLeft[k] ?? 0) - it.qty;
+      if (remaining < -1e-9 || !it.serials.every(serialsLeft.remove)) {
+        throw const ReturnExceedsSold();
+      }
+      qtyLeft[k] = remaining;
+    }
+  }
+
   Future<void> createReturnOrder({
     required Order originalOrder,
     required List<OrderItem> returnItems,
@@ -610,6 +633,15 @@ class OrderNotifier extends _$OrderNotifier {
 
         final original =
             await isar.orders.get(originalOrder.id) ?? originalOrder;
+
+        _checkReturnable(
+            original,
+            await isar.orders
+                .filter()
+                .isReturnEqualTo(true)
+                .originalOrderIdEqualTo(original.id)
+                .findAll(),
+            returnItems);
 
         final value = returnValueFor(original, returnItems);
 
@@ -647,6 +679,7 @@ class OrderNotifier extends _$OrderNotifier {
         ]);
       });
     });
+    if (state.hasError) throw state.error!;
   }
 
   /// What the customer owes, from their orders as written in this txn. The

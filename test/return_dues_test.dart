@@ -9,6 +9,7 @@ import 'package:micro_seller/data/models/order_item.dart';
 import 'package:micro_seller/data/models/product.dart';
 import 'package:micro_seller/data/services/dues_service.dart';
 import 'package:micro_seller/data/services/isar_service.dart';
+import 'package:micro_seller/data/services/returnable_service.dart';
 import 'package:micro_seller/features/orders/providers/order_provider.dart';
 
 import 'support/isar_core.dart';
@@ -145,6 +146,38 @@ void main() {
       await notifier.rejectReturn(ret.id);
       expect((await isar.orders.get(ret.id))!.returnStatus, ReturnStatus.received);
       expect(await due(), 40);
+    });
+
+    Future<int> returnCount() => isar.orders.filter().isReturnEqualTo(true).count();
+
+    Future<void> ask(Order original, double qty) => notifier.createReturnOrder(
+          originalOrder: original,
+          returnItems: [eggs(qty)],
+          reason: ReturnReason.damaged,
+          refundAmount: 0,
+        );
+
+    test('5 sold, 4 returned: only 1 more can come back', () async {
+      await shop('ret-limit');
+      final original = await sell(paid: 50);
+      await returnEggs(original, 4);
+      expect(returnableFor(original, await isar.orders.where().findAll()).single.qty, 1);
+      await expectLater(ask(original, 2), throwsA(isA<ReturnExceedsSold>()));
+      expect(await returnCount(), 1, reason: 'nothing written');
+      await ask(original, 1);
+      expect(await returnCount(), 2);
+      await expectLater(ask(original, 1), throwsA(isA<ReturnExceedsSold>()));
+    });
+
+    test('a pending request blocks its qty, a rejected one frees it', () async {
+      await shop('ret-pending');
+      final original = await sell(paid: 50);
+      await ask(original, 5);
+      await expectLater(ask(original, 1), throwsA(isA<ReturnExceedsSold>()));
+      final pending = (await isar.orders.filter().isReturnEqualTo(true).findFirst())!;
+      await notifier.rejectReturn(pending.id);
+      await ask(original, 5);
+      expect(await returnCount(), 2);
     });
   });
 }

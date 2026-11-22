@@ -9,6 +9,7 @@ import '../../../shared/widgets/quantity_sheet.dart';
 import '../../../data/models/order.dart';
 import '../../../data/models/order_item.dart';
 import '../../../data/services/dues_service.dart';
+import '../../../data/services/returnable_service.dart';
 import '../../orders/providers/order_provider.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../shared/widgets/app_text_field.dart';
@@ -24,21 +25,24 @@ class CreateReturnScreen extends ConsumerStatefulWidget {
 }
 
 class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
-  late List<double> _returnQtys;
+  List<double> _returnQtys = const [];
+
+  /// What each line can still be returned; null until earlier returns load.
+  List<Returnable>? _returnable;
 
   /// Per item, the serials coming back (all at first); its quantity is
   /// their count. Empty for lines without serials.
-  late List<List<String>> _returnSerials;
+  List<List<String>> _returnSerials = const [];
   ReturnReason _reason = ReturnReason.defective;
   final _notesCtrl = TextEditingController();
   final _refundCtrl = TextEditingController();
   bool _isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _returnQtys = widget.originalOrder.items.map((i) => i.qty).toList();
-    _returnSerials = widget.originalOrder.items.map((i) => List.of(i.serials)).toList();
+  void _start(List<Order> returns) {
+    final r = returnableFor(widget.originalOrder, returns);
+    _returnable = r;
+    _returnQtys = r.map((e) => e.qty).toList();
+    _returnSerials = r.map((e) => List.of(e.serials)).toList();
     _updateRefundAmount();
   }
 
@@ -115,7 +119,8 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppStrings.of(context).tr('failedToCreateReturn'))),
+          SnackBar(content: Text(AppStrings.of(context).tr(
+              e is ReturnExceedsSold ? 'returnExceedsSold' : 'failedToCreateReturn'))),
         );
       }
     } finally {
@@ -132,6 +137,18 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final order = widget.originalOrder;
+    if (_returnable == null) {
+      final returns = ref.watch(returnsForOrderProvider(order.id)).value;
+      if (returns == null) {
+        return Scaffold(
+          appBar: AppBar(title: Text(s.createReturnTitle)),
+          body: const Center(child: CircularProgressIndicator()),
+        );
+      }
+      _start(returns);
+    }
+    final returnable = _returnable!;
+    final nothingLeft = !returnable.any((r) => r.qty > 1e-9);
 
     Map<ReturnReason, String> reasonLabels = {
       ReturnReason.defective: s.defective,
@@ -175,9 +192,16 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
 
           Text(s.selectItems, style: _sectionLabel(cs)),
           const SizedBox(height: 8),
+          if (nothingLeft)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(s.tr('allItemsReturned'),
+                  style: theme.textTheme.bodyMedium?.copyWith(color: cs.error)),
+            ),
           ...List.generate(order.items.length, (i) {
             final item = order.items[i];
             final rQty = _returnQtys[i];
+            final done = returnable[i].alreadyReturned;
             final dimmed = rQty == 0;
             return AnimatedOpacity(
               opacity: dimmed ? 0.4 : 1.0,
@@ -207,6 +231,11 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
                           style: theme.textTheme.bodySmall
                               ?.copyWith(color: cs.onSurfaceVariant),
                         ),
+                        if (done > 1e-9)
+                          Text(
+                            s.tr('returnedQty').replaceAll('{qty}', s.qty(done, item.unit)),
+                            style: theme.textTheme.bodySmall?.copyWith(color: cs.error),
+                          ),
                         if (item.hasSerials && _returnSerials[i].isNotEmpty)
                           Text(
                             '${s.serialsReturned}: ${_returnSerials[i].join(', ')}',
@@ -276,7 +305,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
             isLoading: _isLoading,
             isFullWidth: true,
             height: 48,
-            onPressed: _isLoading ? null : _submit,
+            onPressed: _isLoading || nothingLeft ? null : _submit,
           ),
           const SizedBox(height: 16),
         ],
@@ -285,7 +314,8 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
   }
 
   Widget _buildQtyControl(int idx, double value, OrderItem item, ColorScheme cs) {
-    final max = item.qty;
+    final max = _returnable![idx].qty;
+    if (max <= 1e-9) return const SizedBox.shrink();
     // A serial-numbered line comes back by serial: its value opens the
     // serial picker over the serials it was sold with.
     if (item.hasSerials) {
@@ -296,7 +326,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
           final picked = await showSerialPickerSheet(
             context,
             productName: item.displayName,
-            available: item.serials,
+            available: _returnable![idx].serials,
             selected: _returnSerials[idx],
           );
           if (picked == null || !mounted) return;

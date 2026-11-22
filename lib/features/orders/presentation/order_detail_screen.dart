@@ -13,6 +13,7 @@ import '../../../shared/widgets/pdf_saved_sheet.dart';
 import '../../../data/models/order.dart';
 import '../providers/order_provider.dart';
 import '../../../data/services/dues_service.dart';
+import '../../../data/services/returnable_service.dart';
 import '../../../data/services/isar_service.dart';
 import '../../../data/services/pdf_service.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -121,6 +122,8 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
           );
         }
         final due = order.isReturn ? 0.0 : order.balanceDue - returned;
+        final canReturn = !order.isReturn &&
+            hasReturnable(order, ref.watch(returnsForOrderProvider(order.id)).value ?? const []);
 
         return Scaffold(
           appBar: AppBar(
@@ -176,7 +179,7 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
                         title: Text(s.tr('posPrint')),
                         contentPadding: EdgeInsets.zero,
                       )),
-                  if (!order.isReturn)
+                  if (canReturn)
                     PopupMenuItem(
                         value: 'return',
                         child: ListTile(
