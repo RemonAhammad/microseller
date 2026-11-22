@@ -44,12 +44,13 @@ void main() {
     });
     await pumpScreen(tester, isar: isar, screen: CreateReturnScreen(originalOrder: sale));
 
-    expect(find.text('2 / 2'), findsOneWidget, reason: 'every serial comes back at first');
+    expect(find.text('0 / 2'), findsOneWidget, reason: 'nothing comes back at first');
     await tester.tap(find.byKey(const ValueKey('returnSerials0')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('IMEI-1'));
+    await tester.tap(find.text('IMEI-2'));
     await tester.pump();
-    await tester.tap(find.textContaining('1 selected'));
+    // The header's "0 of 1 selected" also matches; the sheet is on top.
+    await tester.tap(find.textContaining('1 selected').last);
     await tester.pumpAndSettle();
     expect(find.text('1 / 2'), findsOneWidget);
     expect(find.text('Serials coming back: IMEI-2'), findsOneWidget);

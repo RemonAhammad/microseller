@@ -44,10 +44,35 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
     _earlierReturned = returns
         .where((o) => o.isCompletedReturn)
         .fold<double>(0, (a, o) => a + o.totalAmount);
-    _returnQtys = r.map((e) => e.qty).toList();
-    _returnSerials = r.map((e) => List.of(e.serials)).toList();
+    // Nothing is selected at first: a return is usually one or two lines.
+    _returnQtys = List<double>.filled(r.length, 0, growable: true);
+    _returnSerials = List.generate(r.length, (_) => <String>[]);
     _updateRefundAmount();
   }
+
+  /// Sets every line at once: [qtyFor] gives the quantity from what the
+  /// line can still return; a serial line takes that many of its serials.
+  void _setAll(double Function(double max) qtyFor) {
+    final r = _returnable!;
+    setState(() {
+      for (int i = 0; i < r.length; i++) {
+        final max = r[i].qty;
+        if (max <= 1e-9) continue;
+        if (widget.originalOrder.items[i].hasSerials) {
+          final n = qtyFor(max).round().clamp(0, r[i].serials.length);
+          _returnSerials[i] = r[i].serials.take(n).toList();
+          _returnQtys[i] = n.toDouble();
+        } else {
+          _returnQtys[i] = qtyFor(max);
+        }
+      }
+      _updateRefundAmount();
+    });
+  }
+
+  void _selectAll() => _setAll((max) => max);
+  void _selectOneEach() => _setAll((max) => max < 1 ? max : 1);
+  void _clearAll() => _setAll((_) => 0);
 
   @override
   void dispose() {
@@ -198,7 +223,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
           ),
           const SizedBox(height: 20),
 
-          Text(s.selectItems, style: _sectionLabel(cs)),
+          _buildItemsHeader(context, theme, cs, returnable, nothingLeft),
           const SizedBox(height: 8),
           if (nothingLeft)
             Padding(
@@ -318,6 +343,68 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
           const SizedBox(height: 16),
         ],
       ),
+    );
+  }
+
+  Widget _buildItemsHeader(BuildContext context, ThemeData theme, ColorScheme cs,
+      List<Returnable> returnable, bool nothingLeft) {
+    final s = AppStrings.of(context);
+    final lines = [
+      for (int i = 0; i < returnable.length; i++)
+        if (returnable[i].qty > 1e-9) i,
+    ];
+    final selected = lines.where((i) => _returnQtys[i] > 0).length;
+    final allMax = lines.every((i) => qtyAtLeast(_returnQtys[i], returnable[i].qty));
+    final allOne = lines.every((i) {
+      final one = returnable[i].qty < 1 ? returnable[i].qty : 1.0;
+      return (_returnQtys[i] - one).abs() < 1e-9;
+    });
+
+    Widget action(String label, ThinIconBuilder icon, bool enabled,
+            VoidCallback onTap, Key key) =>
+        TextButton.icon(
+          key: key,
+          onPressed: enabled ? onTap : null,
+          icon: ThinIcon(icon, size: 16),
+          label: Text(label),
+          style: TextButton.styleFrom(
+            visualDensity: VisualDensity.compact,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            minimumSize: const Size(0, 36),
+          ),
+        );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 8,
+          children: [
+            Text(s.selectItems, style: _sectionLabel(cs)),
+            if (!nothingLeft)
+              Wrap(
+                spacing: 4,
+                children: [
+                  action(s.selectAll, tabler.Checks.new, !allMax, _selectAll,
+                      const ValueKey('returnSelectAll')),
+                  action(s.tr('returnOneEach'), tabler.Number1.new, !allOne,
+                      _selectOneEach, const ValueKey('returnOneEach')),
+                  action(s.tr('returnClearSelection'), tabler.X.new,
+                      selected > 0, _clearAll, const ValueKey('returnClear')),
+                ],
+              ),
+          ],
+        ),
+        if (!nothingLeft)
+          Text(
+            s.tr('returnItemsSelected')
+                .replaceAll('{count}', '$selected')
+                .replaceAll('{total}', '${lines.length}'),
+            style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+          ),
+      ],
     );
   }
 
