@@ -353,6 +353,8 @@ const translationsUr = <String, String>{
   'maxRefundable': 'زیادہ سے زیادہ واپسی قابل',
   'amountPaidOnOriginal': 'اصل آرڈر پر ادا شدہ رقم',
   'refundAfterDue': "آرڈر کا بقایا ادا ہونے کے بعد باقی رقم",
+  'refundFull': 'پورا',
+  'keptAsCredit': 'کریڈٹ کے طور پر رہے گا: {amount}',
   'returnedQty': 'واپس ہو چکا: {qty}',
   'allItemsReturned': 'اس آرڈر کی تمام اشیاء پہلے ہی واپس ہو چکی ہیں',
   'returnExceedsSold': 'کچھ اشیاء پہلے ہی واپس ہو چکی ہیں۔ مقدار چیک کریں۔',

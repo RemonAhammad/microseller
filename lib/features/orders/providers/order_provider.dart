@@ -774,8 +774,21 @@ class OrderNotifier extends _$OrderNotifier {
     });
   }
 
+  /// The most cash that can go back now for a received return: its value
+  /// after the order's remaining due is paid off, capped at what was paid.
+  Future<double> cashRefundableFor(int returnOrderId) async {
+    final isar = await ref.read(isarProvider.future);
+    final r = await isar.orders.get(returnOrderId);
+    if (r == null || !r.isReturn) return 0;
+    final original = r.originalOrderId > 0 ? await isar.orders.get(r.originalOrderId) : null;
+    return original == null ? r.refundAmount : _cashRefundableFor(isar, original);
+  }
+
+  /// Completes a received return. [amount] (typed at refund time) replaces
+  /// the refund asked for at creation; either is clamped to what can go back.
   Future<void> processRefund(
     int returnOrderId, {
+    double? amount,
     PaymentMethod? refundMethod,
     String refundTransactionId = '',
   }) async {
@@ -796,7 +809,7 @@ class OrderNotifier extends _$OrderNotifier {
             ? returnOrder.refundAmount
             : await _cashRefundableFor(isar, original);
         final actualRefund =
-            returnOrder.refundAmount.clamp(0.0, maxRefundable);
+            (amount ?? returnOrder.refundAmount).clamp(0.0, maxRefundable);
 
         final updatedOrders = [
           returnOrder.copyWith(

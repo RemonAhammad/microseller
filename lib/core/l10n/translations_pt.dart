@@ -353,6 +353,8 @@ const translationsPt = <String, String>{
   'maxRefundable': 'Máximo reembolsável',
   'amountPaidOnOriginal': 'valor pago no pedido original',
   'refundAfterDue': "o que sobra depois de quitar o saldo do pedido",
+  'refundFull': 'Total',
+  'keptAsCredit': 'Fica como crédito: {amount}',
   'returnedQty': 'Devolvido: {qty}',
   'allItemsReturned': 'Todos os itens deste pedido já foram devolvidos',
   'returnExceedsSold': 'Alguns itens já foram devolvidos. Verifique as quantidades.',

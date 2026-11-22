@@ -353,6 +353,8 @@ const translationsAr = <String, String>{
   'maxRefundable': 'الحد الأقصى للاسترداد',
   'amountPaidOnOriginal': 'المبلغ المدفوع على الطلب الأصلي',
   'refundAfterDue': "ما يتبقى بعد سداد المستحق على الطلب",
+  'refundFull': 'الكل',
+  'keptAsCredit': 'يبقى رصيدًا: {amount}',
   'returnedQty': 'تم إرجاع: {qty}',
   'allItemsReturned': 'تم إرجاع جميع عناصر هذا الطلب بالفعل',
   'returnExceedsSold': 'تم إرجاع بعض العناصر من قبل. تحقق من الكميات.',

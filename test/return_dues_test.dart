@@ -200,5 +200,22 @@ void main() {
       expect(await due(), 0);
       expect(await counter(), 0);
     });
+
+    test('paid in full, return worth 10: refund 5 at refund time, 5 kept as credit', () async {
+      await shop('ret-partial');
+      final original = await sell(paid: 50);
+      final ret = await returnEggs(original, 1, refund: 10);
+      expect(await notifier.cashRefundableFor(ret.id), 10);
+      await notifier.processRefund(ret.id, amount: 5);
+      expect((await isar.orders.get(ret.id))!.refundAmount, 5);
+      expect((await isar.orders.get(original.id))!.amountPaid, 45);
+    });
+
+    test('a typed refund above the cap is clamped', () async {
+      await shop('ret-clamp');
+      final ret = await returnEggs(await sell(paid: 45), 1);
+      await notifier.processRefund(ret.id, amount: 9);
+      expect((await isar.orders.get(ret.id))!.refundAmount, 5);
+    });
   });
 }

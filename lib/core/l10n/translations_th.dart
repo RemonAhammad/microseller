@@ -353,6 +353,8 @@ const translationsTh = <String, String>{
   'maxRefundable': 'จำนวนเงินคืนสูงสุด',
   'amountPaidOnOriginal': 'จำนวนที่ชำระในคำสั่งซื้อเดิม',
   'refundAfterDue': "ส่วนที่เหลือหลังหักยอดค้างของคำสั่งซื้อ",
+  'refundFull': 'ทั้งหมด',
+  'keptAsCredit': 'เก็บเป็นเครดิต: {amount}',
   'returnedQty': 'คืนแล้ว: {qty}',
   'allItemsReturned': 'สินค้าทั้งหมดของคำสั่งซื้อนี้ถูกคืนแล้ว',
   'returnExceedsSold': 'สินค้าบางรายการถูกคืนไปแล้ว โปรดตรวจสอบจำนวน',

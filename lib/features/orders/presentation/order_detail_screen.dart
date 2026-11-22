@@ -1350,9 +1350,11 @@ class _StatusStepperBar extends StatelessWidget {
 }
 
 class _RefundDialogResult {
+  final double amount;
   final PaymentMethod method;
   final String transactionId;
-  _RefundDialogResult({required this.method, required this.transactionId});
+  _RefundDialogResult(
+      {required this.amount, required this.method, required this.transactionId});
 }
 
 class _ReturnFlowCard extends StatelessWidget {
@@ -1373,9 +1375,18 @@ class _ReturnFlowCard extends StatelessWidget {
   }
 
   Future<_RefundDialogResult?> _showRefundDialog(
-      BuildContext context, Order returnOrder) {
+      BuildContext context, Order returnOrder, double cap) {
     final s = AppStrings.of(context);
     final txnCtrl = TextEditingController();
+    String fmt(double v) => v.toStringAsFixed(NumberInput.moneyDecimals);
+    final start = returnOrder.refundAmount.clamp(0.0, cap);
+    final amountCtrl = TextEditingController(text: fmt(start));
+    double amountOf() {
+      final t = amountCtrl.text.trim();
+      if (t == fmt(start)) return start;
+      if (t == fmt(cap)) return cap;
+      return NumberInput.parseDecimal(t) ?? 0;
+    }
     PaymentMethod method = returnOrder.paymentMethod;
     return showDialog<_RefundDialogResult>(
       context: context,
@@ -1389,10 +1400,40 @@ class _ReturnFlowCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  '${s.tr("refund")} ${CurrencyFormatter.format(returnOrder.refundAmount)}'
-                  '${returnOrder.customerName.isNotEmpty ? " → ${returnOrder.customerName}" : ""}',
+                if (returnOrder.customerName.isNotEmpty)
+                  Text('→ ${returnOrder.customerName}'),
+                const SizedBox(height: 12),
+                TextField(
+                  key: const ValueKey('refundAmountField'),
+                  controller: amountCtrl,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: const [DecimalInputFormatter.money()],
+                  onChanged: (_) => setLocal(() {}),
+                  decoration: InputDecoration(
+                    labelText: s.refundAmount,
+                    helperText:
+                        '${s.tr("maxRefundable")}: ${CurrencyFormatter.format(cap)}',
+                    helperMaxLines: 2,
+                    suffixIcon: TextButton(
+                      onPressed: () => setLocal(() => amountCtrl.text = fmt(cap)),
+                      child: Text(s.tr('refundFull')),
+                    ),
+                  ),
                 ),
+                Builder(builder: (_) {
+                  final kept = cap - amountOf().clamp(0.0, cap);
+                  if (kept <= kDueEpsilon) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      s.tr('keptAsCredit')
+                          .replaceAll('{amount}', CurrencyFormatter.format(kept)),
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(ctx).colorScheme.primary),
+                    ),
+                  );
+                }),
                 const SizedBox(height: 16),
                 Text(s.refundMethod,
                     style: const TextStyle(
@@ -1418,10 +1459,20 @@ class _ReturnFlowCard extends StatelessWidget {
             TextButton(
                 onPressed: () => Navigator.pop(ctx), child: Text(s.cancel)),
             FilledButton.icon(
-              onPressed: () => Navigator.pop(
-                  ctx,
-                  _RefundDialogResult(
-                      method: method, transactionId: txnCtrl.text.trim())),
+              onPressed: () {
+                final a = amountOf();
+                if (a < 0 || a > cap + kDueEpsilon) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(s.refundRange(CurrencyFormatter.format(cap)))));
+                  return;
+                }
+                Navigator.pop(
+                    ctx,
+                    _RefundDialogResult(
+                        amount: a.clamp(0.0, cap),
+                        method: method,
+                        transactionId: txnCtrl.text.trim()));
+              },
               icon: const ThinIcon(tabler.Exchange.new, size: 16),
               label: Text(s.tr('refund')),
             ),
@@ -1593,12 +1644,16 @@ class _ReturnFlowCard extends StatelessWidget {
                 onPressed: () async {
                   // Nothing goes back in cash (the return paid off the due):
                   // no method or transaction to ask for.
-                  final noCash = order.refundAmount <= kDueEpsilon;
+                  final notifier = ref.read(orderProvider.notifier);
+                  final cap = await notifier.cashRefundableFor(order.id);
+                  if (!context.mounted) return;
+                  final noCash = cap <= kDueEpsilon;
                   final result =
-                      noCash ? null : await _showRefundDialog(context, order);
+                      noCash ? null : await _showRefundDialog(context, order, cap);
                   if (!noCash && result == null) return;
-                  await ref.read(orderProvider.notifier).processRefund(
+                  await notifier.processRefund(
                         order.id,
+                        amount: noCash ? 0 : result!.amount,
                         refundMethod: result?.method,
                         refundTransactionId: result?.transactionId ?? '',
                       );
@@ -1612,8 +1667,7 @@ class _ReturnFlowCard extends StatelessWidget {
                   }
                 },
                 icon: const ThinIcon(tabler.Exchange.new, size: 16),
-                label: Text(
-                    '${s.processRefund} (${CurrencyFormatter.format(order.refundAmount)})',
+                label: Text(s.processRefund,
                     style: const TextStyle(fontSize: 12)),
                 style: FilledButton.styleFrom(
                   backgroundColor: Colors.orange,

@@ -353,6 +353,8 @@ const translationsTr = <String, String>{
   'maxRefundable': 'Maksimum iade edilebilir',
   'amountPaidOnOriginal': 'orijinal siparişte ödenen tutar',
   'refundAfterDue': "siparişin borcu kapandıktan sonra kalan",
+  'refundFull': 'Tamamı',
+  'keptAsCredit': 'Alacak olarak kalır: {amount}',
   'returnedQty': 'İade edildi: {qty}',
   'allItemsReturned': 'Bu siparişin tüm ürünleri zaten iade edildi',
   'returnExceedsSold': 'Bazı ürünler zaten iade edildi. Miktarları kontrol edin.',

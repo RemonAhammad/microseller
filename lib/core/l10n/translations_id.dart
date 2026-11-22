@@ -353,6 +353,8 @@ const translationsId = <String, String>{
   'maxRefundable': 'Maksimum dapat dikembalikan',
   'amountPaidOnOriginal': 'jumlah dibayar pada pesanan asli',
   'refundAfterDue': "sisa setelah tagihan pesanan lunas",
+  'refundFull': 'Penuh',
+  'keptAsCredit': 'Disimpan sebagai kredit: {amount}',
   'returnedQty': 'Dikembalikan: {qty}',
   'allItemsReturned': 'Semua barang pesanan ini sudah dikembalikan',
   'returnExceedsSold': 'Beberapa barang sudah dikembalikan. Periksa jumlahnya.',

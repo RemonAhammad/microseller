@@ -353,6 +353,8 @@ const translationsMs = <String, String>{
   'maxRefundable': 'Maksimum boleh dipulangkan',
   'amountPaidOnOriginal': 'jumlah dibayar pada pesanan asal',
   'refundAfterDue': "baki selepas hutang pesanan dijelaskan",
+  'refundFull': 'Penuh',
+  'keptAsCredit': 'Disimpan sebagai kredit: {amount}',
   'returnedQty': 'Dipulangkan: {qty}',
   'allItemsReturned': 'Semua item pesanan ini sudah dipulangkan',
   'returnExceedsSold': 'Sesetengah item sudah dipulangkan. Semak kuantiti.',

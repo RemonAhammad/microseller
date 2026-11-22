@@ -353,6 +353,8 @@ const translationsVi = <String, String>{
   'maxRefundable': 'Hoàn tiền tối đa',
   'amountPaidOnOriginal': 'số tiền đã trả trên đơn gốc',
   'refundAfterDue': "phần còn lại sau khi trừ nợ của đơn",
+  'refundFull': 'Toàn bộ',
+  'keptAsCredit': 'Giữ làm tín dụng: {amount}',
   'returnedQty': 'Đã trả: {qty}',
   'allItemsReturned': 'Tất cả mặt hàng của đơn này đã được trả',
   'returnExceedsSold': 'Một số mặt hàng đã được trả. Hãy kiểm tra số lượng.',

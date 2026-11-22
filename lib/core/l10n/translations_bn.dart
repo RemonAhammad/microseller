@@ -353,6 +353,8 @@ const translationsBn = <String, String>{
   'maxRefundable': 'সর্বোচ্চ রিফান্ডযোগ্য',
   'amountPaidOnOriginal': 'মূল অর্ডারে প্রদত্ত পরিমাণ',
   'refundAfterDue': "অর্ডারের বাকি শোধ হওয়ার পর যা থাকে",
+  'refundFull': 'পুরোটা',
+  'keptAsCredit': 'ক্রেডিট হিসেবে থাকবে: {amount}',
   'returnedQty': 'ফেরত হয়েছে: {qty}',
   'allItemsReturned': 'এই অর্ডারের সব পণ্য আগেই ফেরত হয়েছে',
   'returnExceedsSold': 'কিছু পণ্য আগেই ফেরত হয়েছে। পরিমাণ দেখে নিন।',
