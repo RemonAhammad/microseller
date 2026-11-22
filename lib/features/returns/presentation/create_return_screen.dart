@@ -41,6 +41,9 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
   void _start(List<Order> returns) {
     final r = returnableFor(widget.originalOrder, returns);
     _returnable = r;
+    _earlierReturned = returns
+        .where((o) => o.isCompletedReturn)
+        .fold<double>(0, (a, o) => a + o.totalAmount);
     _returnQtys = r.map((e) => e.qty).toList();
     _returnSerials = r.map((e) => List.of(e.serials)).toList();
     _updateRefundAmount();
@@ -68,8 +71,13 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
 
   /// The return pays off what's still owed on the order first; only the
   /// rest can go back as cash (never more than was paid).
-  double get _maxRefundable => (_returnTotal - widget.originalOrder.balanceDue)
-      .clamp(0.0, widget.originalOrder.amountPaid);
+  /// Value of this order's earlier returns whose goods are back: they
+  /// already paid off part of the due.
+  double _earlierReturned = 0;
+
+  double get _maxRefundable =>
+      (_earlierReturned + _returnTotal - widget.originalOrder.balanceDue)
+          .clamp(0.0, widget.originalOrder.amountPaid);
 
   double _suggestedRefund = 0;
 

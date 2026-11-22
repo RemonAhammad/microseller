@@ -179,5 +179,26 @@ void main() {
       await ask(original, 5);
       expect(await returnCount(), 2);
     });
+
+    test('paid 35 of 50, two returns of 1: second refunds 5', () async {
+      await shop('ret-second');
+      final original = await sell(paid: 35);
+      final first = await returnEggs(original, 1);
+      await notifier.processRefund(first.id);
+      expect(await due(), 5);
+      await notifier.createReturnOrder(
+        originalOrder: (await isar.orders.get(original.id))!,
+        returnItems: [eggs(1)],
+        reason: ReturnReason.damaged,
+        refundAmount: 5,
+      );
+      final second = (await isar.orders.filter().isReturnEqualTo(true).sortByCreatedAtDesc().findFirst())!;
+      await notifier.approveReturn(second.id);
+      await notifier.processRefund(second.id);
+      expect((await isar.orders.get(second.id))!.refundAmount, 5);
+      expect((await isar.orders.get(original.id))!.amountPaid, 30);
+      expect(await due(), 0);
+      expect(await counter(), 0);
+    });
   });
 }
