@@ -360,43 +360,60 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
       return (_returnQtys[i] - one).abs() < 1e-9;
     });
 
+    // Small outlined pills, so they read as buttons beside the label.
     Widget action(String label, ThinIconBuilder icon, bool enabled,
             VoidCallback onTap, Key key) =>
-        TextButton.icon(
+        OutlinedButton.icon(
           key: key,
           onPressed: enabled ? onTap : null,
-          icon: ThinIcon(icon, size: 16),
+          icon: ThinIcon(icon, size: 14),
           label: Text(label),
-          style: TextButton.styleFrom(
+          style: OutlinedButton.styleFrom(
             visualDensity: VisualDensity.compact,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            minimumSize: const Size(0, 36),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            minimumSize: const Size(0, 30),
+            shape: const StadiumBorder(),
+            foregroundColor: cs.primary,
+            backgroundColor: cs.primary.withValues(alpha: 0.06),
+            side: BorderSide(color: cs.primary.withValues(alpha: 0.5)),
+            textStyle: theme.textTheme.labelMedium
+                ?.copyWith(fontWeight: FontWeight.w600),
           ),
         );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 8,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(s.selectItems, style: _sectionLabel(cs)),
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(s.selectItems, style: _sectionLabel(cs)),
+            ),
+            const SizedBox(width: 8),
+            // Right-aligned; on a narrow screen the buttons wrap onto a
+            // second line that stays on the right.
             if (!nothingLeft)
-              Wrap(
-                spacing: 4,
-                children: [
-                  action(s.selectAll, tabler.Checks.new, !allMax, _selectAll,
-                      const ValueKey('returnSelectAll')),
-                  action(s.tr('returnOneEach'), tabler.Number1.new, !allOne,
-                      _selectOneEach, const ValueKey('returnOneEach')),
-                  action(s.tr('returnClearSelection'), tabler.X.new,
-                      selected > 0, _clearAll, const ValueKey('returnClear')),
-                ],
+              Expanded(
+                child: Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    action(s.selectAll, tabler.Checks.new, !allMax, _selectAll,
+                        const ValueKey('returnSelectAll')),
+                    action(s.tr('returnOneEach'), tabler.Number1.new, !allOne,
+                        _selectOneEach, const ValueKey('returnOneEach')),
+                    action(s.tr('returnClearSelection'), tabler.X.new,
+                        selected > 0, _clearAll, const ValueKey('returnClear')),
+                  ],
+                ),
               ),
           ],
         ),
+        const SizedBox(height: 4),
         if (!nothingLeft)
           Text(
             s.tr('returnItemsSelected')

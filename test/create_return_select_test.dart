@@ -112,4 +112,20 @@ void main() {
     expect(ret.items.single.productName, 'Cap');
     expect(ret.items.single.qty, 1);
   });
+
+  testWidgets('header fits a 320 dp phone at 150% text', skip: isarSkipReason != null, (tester) async {
+    final (isar, sale) = await seed(tester);
+    await pumpScreen(tester, isar: isar, screen: CreateReturnScreen(originalOrder: sale));
+    tester.view.physicalSize = const Size(640, 1600);
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    // The buttons stay right-aligned: each ends at or right of the label.
+    final label = tester.getTopRight(find.text('Select Items'));
+    final clear = tester.getTopRight(find.byKey(const ValueKey('returnClear')));
+    expect(clear.dx, greaterThan(label.dx));
+    expect(clear.dx, greaterThan(320 - 16 - 8));
+  });
 }
