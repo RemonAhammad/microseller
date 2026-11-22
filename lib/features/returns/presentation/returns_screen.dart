@@ -14,6 +14,7 @@ import '../../../shared/widgets/screen_guide.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
 import '../../../shared/widgets/section_help.dart';
+import 'choose_return_order_screen.dart';
 
 class ReturnsScreen extends ConsumerStatefulWidget {
   const ReturnsScreen({super.key});
@@ -129,7 +130,10 @@ class _ReturnsScreenState extends ConsumerState<ReturnsScreen>
           return TabBarView(
             controller: _tabController,
             children: [
-              _ReturnList(orders: returns),
+              // Only the All tab offers to start one: an empty Rejected tab
+              // isn't a reason to create a return.
+              _ReturnList(
+                  orders: returns, onCreate: () => startNewReturn(context)),
               _ReturnList(orders: requested),
               _ReturnList(orders: received),
               _ReturnList(orders: refunded),
@@ -140,6 +144,11 @@ class _ReturnsScreenState extends ConsumerState<ReturnsScreen>
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) =>
             Center(child: Text('${AppStrings.of(context).error}: $e')),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => startNewReturn(context),
+        tooltip: s.createReturn,
+        child: const ThinIcon(tabler.Plus.new),
       ),
     ),
     );
@@ -181,9 +190,15 @@ class _TabLabel extends StatelessWidget {
   }
 }
 
+/// A return is always made against an order: choose it, then the usual
+/// Create Return screen. The new return shows up in this list by itself.
+Future<void> startNewReturn(BuildContext context) => Navigator.of(context)
+    .push<bool>(MaterialPageRoute(builder: (_) => const ChooseReturnOrderScreen()));
+
 class _ReturnList extends StatelessWidget {
   final List<Order> orders;
-  const _ReturnList({required this.orders});
+  final VoidCallback? onCreate;
+  const _ReturnList({required this.orders, this.onCreate});
 
   @override
   Widget build(BuildContext context) {
@@ -193,6 +208,8 @@ class _ReturnList extends StatelessWidget {
         icon: tabler.ArrowBackUp.new,
         title: s.noReturns,
         subtitle: s.returnOrdersAppearHere,
+        actionLabel: onCreate == null ? null : s.createReturn,
+        onAction: onCreate,
       );
     }
     return ListView.separated(

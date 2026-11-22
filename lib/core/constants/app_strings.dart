@@ -352,6 +352,10 @@ class _L10nStrings {
   String get sharePdf => _l10n.tr('sharePdf');
   String get downloadPdf => _l10n.tr('downloadPdf');
   String get createReturn => _l10n.tr('createReturn');
+  String get chooseOrderToReturn => _l10n.tr('chooseOrderToReturn');
+  String get searchOrdersToReturn => _l10n.tr('searchOrdersToReturn');
+  String get noOrdersToReturn => _l10n.tr('noOrdersToReturn');
+  String get noOrdersToReturnHint => _l10n.tr('noOrdersToReturnHint');
   String get cancelOrder => _l10n.tr('cancelOrder');
   String get cancelOrderConfirm => _l10n.tr('cancelOrderConfirm');
   String get deleteOrder => _l10n.tr('deleteOrder');

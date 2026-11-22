@@ -147,7 +147,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(AppStrings.of(context).tr('returnRequestSubmitted'))),
         );
-        context.pop();
+        context.pop(true);
       }
     } catch (e) {
       if (mounted) {
