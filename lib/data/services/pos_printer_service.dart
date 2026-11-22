@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'order_returns_summary.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:flutter_thermal_printer/utils/printer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/order.dart';
+import 'pdf_service.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/item_notes.dart';
 import '../../core/utils/quantity.dart';
@@ -103,6 +105,8 @@ class PosPrinterService {
     required String currencySymbol,
     required int paperWidth,
     Printer? printer,
+    List<Order> returns = const [],
+    String? originalOrderNumber,
   }) async {
     final target = printer ?? _connectedPrinter;
     if (target == null || !isPosPrinterSupported) return false;
@@ -113,6 +117,8 @@ class PosPrinterService {
         shopName: shopName,
         shopPhone: shopPhone,
         cols: cols,
+        returns: returns,
+        originalOrderNumber: originalOrderNumber,
       );
 
       final text = lines.join('\n');
@@ -153,22 +159,46 @@ class PosPrinterService {
     }
   }
 
+  @visibleForTesting
+  List<String> buildReceiptLinesForTest({
+    required Order order,
+    String shopName = 'Shop',
+    int cols = 32,
+    String? originalOrderNumber,
+  }) =>
+      _buildReceiptLines(
+          order: order,
+          shopName: shopName,
+          cols: cols,
+          originalOrderNumber: originalOrderNumber);
+
   List<String> _buildReceiptLines({
     required Order order,
     required String shopName,
     String? shopPhone,
     required int cols,
+    List<Order> returns = const [],
+    String? originalOrderNumber,
   }) {
     final lines = <String>[];
+    final isReturn = order.isReturn;
 
     lines.add(_center(shopName.toUpperCase(), cols));
     if (shopPhone != null && shopPhone.isNotEmpty) {
       lines.add(_center(shopPhone, cols));
     }
     lines.add(''.padRight(cols, '-'));
-    lines.add('Order: ${order.orderNumber}');
+    if (isReturn) {
+      lines.add(_center('RETURN INVOICE', cols));
+      lines.add('Return: ${order.orderNumber}');
+      if (originalOrderNumber != null && originalOrderNumber.isNotEmpty) {
+        lines.add('Order: $originalOrderNumber');
+      }
+    } else {
+      lines.add('Order: ${order.orderNumber}');
+    }
     if (order.createdAt != null) {
-      lines.add('Date: ${DateFormatter.format(order.createdAt!)}');
+      lines.add('Date: ${DateFormatter.formatWithTime(order.createdAt!)}');
     }
     if (order.customerName.isNotEmpty) {
       lines.add('Customer: ${order.customerName}');
@@ -204,6 +234,23 @@ class PosPrinterService {
       lines.add('$label${' ' * gap.clamp(1, cols)}$formatted');
     }
 
+    if (isReturn) {
+      addRow('Subtotal:', order.subtotal);
+      if (order.discountAmount > 0) addRow('Discount:', -order.discountAmount);
+      if (order.taxAmount > 0) addRow('Tax:', order.taxAmount);
+      lines.add(''.padRight(cols, '='));
+      addRow('RETURN TOTAL:', order.totalAmount);
+      lines.add(''.padRight(cols, '='));
+      addRow('Refund${documentRefundState(order)}:', order.refundAmount);
+      lines.add('Reason: ${documentReturnReason(order.returnReason)}');
+      lines.add('Status: ${documentReturnStatus(order.returnStatus)}');
+      lines.add('');
+      lines.add(_center('Thank you!', cols));
+      lines.add('');
+      lines.add('');
+      return lines;
+    }
+
     addRow('Subtotal:', order.subtotal);
     if (order.discountAmount > 0) addRow('Discount:', -order.discountAmount);
     if (order.taxAmount > 0) addRow('Tax:', order.taxAmount);
@@ -211,8 +258,18 @@ class PosPrinterService {
     lines.add(''.padRight(cols, '='));
     addRow('TOTAL:', order.totalAmount);
     lines.add(''.padRight(cols, '='));
-    addRow('Paid:', order.amountPaid);
-    if (order.balanceDue > 0) addRow('Due:', order.balanceDue);
+    final summary = OrderReturnsSummary.of(order, returns);
+    if (!summary.hasReturns) {
+      addRow('Paid:', order.amountPaid);
+      if (order.balanceDue > 0) addRow('Due:', order.balanceDue);
+    } else {
+      addRow('Paid:', summary.received);
+      for (final r in summary.returns) {
+        addRow('Ret ${r.number}:', -r.value);
+      }
+      if (summary.refunded > 0) addRow('Refunded:', summary.refunded);
+      addRow('Due:', summary.due);
+    }
 
     lines.add('');
     lines.add(_center('Thank you!', cols));

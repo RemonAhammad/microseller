@@ -8,6 +8,7 @@ import '../../core/utils/currency_formatter.dart';
 import '../../core/utils/item_notes.dart';
 import '../../core/utils/quantity.dart';
 import '../../core/utils/date_formatter.dart';
+import 'order_returns_summary.dart';
 import 'pdf_assembly.dart';
 import 'widget_capture.dart';
 
@@ -17,6 +18,8 @@ class PdfService {
     String shopName = 'SellerBook',
     String? currencySymbol,
     double taxRate = 0.0,
+    List<Order> returns = const [],
+    String? originalOrderNumber,
   }) async {
     final sym = currencySymbol ?? CurrencyFormatter.symbol;
     final watermarkIcon = await loadPdfWatermarkIcon();
@@ -27,6 +30,8 @@ class PdfService {
         shopName: shopName,
         sym: sym,
         taxRate: taxRate,
+        returns: returns,
+        originalOrderNumber: originalOrderNumber,
         watermarkIcon: watermarkIcon,
       ),
       pixelRatio: kPdfCapturePixelRatio,
@@ -43,6 +48,8 @@ class PdfService {
     required String shopName,
     required String sym,
     required double taxRate,
+    List<Order> returns = const [],
+    String? originalOrderNumber,
     ui.Image? watermarkIcon,
   }) =>
       _ReceiptWidget(
@@ -50,14 +57,23 @@ class PdfService {
         shopName: shopName,
         sym: sym,
         taxRate: taxRate,
+        summary: OrderReturnsSummary.of(order, returns),
+        originalOrderNumber: originalOrderNumber,
         watermarkIcon: watermarkIcon,
       );
 
-  String generateWhatsAppText(Order order, {String? currencySymbol}) {
+  String generateWhatsAppText(Order order,
+      {String? currencySymbol,
+      List<Order> returns = const [],
+      String? originalOrderNumber}) {
     final waSym = currencySymbol ?? CurrencyFormatter.symbol;
+    if (order.isReturn) {
+      return _returnWhatsAppText(order, waSym, originalOrderNumber);
+    }
+    final summary = OrderReturnsSummary.of(order, returns);
     final sb = StringBuffer();
     sb.writeln('📦 Order ${order.orderNumber}');
-    sb.writeln('📅 ${DateFormatter.format(order.createdAt)}');
+    sb.writeln('📅 ${DateFormatter.formatWithTime(order.createdAt)}');
     if (order.customerName.isNotEmpty) {
       sb.writeln('👤 ${order.customerName}');
     }
@@ -82,10 +98,20 @@ class PdfService {
       sb.writeln('Tax: ${CurrencyFormatter.format(order.taxAmount, symbol: waSym)}');
     }
     sb.writeln('*Total: ${CurrencyFormatter.format(order.totalAmount, symbol: waSym)}*');
+    if (summary.hasReturns) {
+      sb.writeln('Paid: ${CurrencyFormatter.format(summary.received, symbol: waSym)}');
+      for (final r in summary.returns) {
+        sb.writeln('Returned ${r.number} (${formatQtyNumber(r.qty)}): -${CurrencyFormatter.format(r.value, symbol: waSym)}');
+      }
+      if (summary.refunded > 0) {
+        sb.writeln('Refunded: ${CurrencyFormatter.format(summary.refunded, symbol: waSym)}');
+      }
+      sb.writeln('*Balance Due: ${CurrencyFormatter.format(summary.due, symbol: waSym)}*');
+    }
     sb.writeln();
-    final statusStr = order.paymentStatus == PaymentStatus.paid
+    final statusStr = summary.status == PaymentStatus.paid
         ? '✅ Paid'
-        : order.paymentStatus == PaymentStatus.partial
+        : summary.status == PaymentStatus.partial
             ? '⚠️ Partially Paid'
             : '❌ Unpaid';
     sb.writeln('Status: $statusStr');
@@ -97,6 +123,70 @@ class PdfService {
 
     return sb.toString();
   }
+
+  /// A return's text: what came back and what is refunded. A return has no
+  /// payments of its own, so the order's Paid / Unpaid lines would read as
+  /// money the customer owes.
+  String _returnWhatsAppText(Order order, String sym, String? originalNumber) {
+    final sb = StringBuffer();
+    sb.writeln(originalNumber != null && originalNumber.isNotEmpty
+        ? '↩️ Return ${order.orderNumber} (order $originalNumber)'
+        : '↩️ Return ${order.orderNumber}');
+    sb.writeln('📅 ${DateFormatter.formatWithTime(order.createdAt)}');
+    if (order.customerName.isNotEmpty) {
+      sb.writeln('👤 ${order.customerName}');
+    }
+    sb.writeln();
+    sb.writeln('Returned items:');
+    for (final item in order.items) {
+      sb.writeln(
+          '• ${item.displayName} x${documentQty(item.qty, item.unit)} — ${CurrencyFormatter.format(item.totalPrice, symbol: sym)}');
+    }
+    sb.writeln();
+    sb.writeln('Subtotal: ${CurrencyFormatter.format(order.subtotal, symbol: sym)}');
+    if (order.discountAmount > 0) {
+      sb.writeln('Discount: -${CurrencyFormatter.format(order.discountAmount, symbol: sym)}');
+    }
+    if (order.taxAmount > 0) {
+      sb.writeln('Tax: ${CurrencyFormatter.format(order.taxAmount, symbol: sym)}');
+    }
+    sb.writeln('*Return total: ${CurrencyFormatter.format(order.totalAmount, symbol: sym)}*');
+    sb.writeln('Refund: ${CurrencyFormatter.format(order.refundAmount, symbol: sym)}'
+        '${documentRefundState(order)}');
+    sb.writeln('Reason: ${documentReturnReason(order.returnReason)}');
+    sb.writeln('Status: ${documentReturnStatus(order.returnStatus)}');
+    if (order.returnNotes.isNotEmpty) {
+      sb.writeln();
+      sb.writeln('Notes: ${order.returnNotes}');
+    }
+    return sb.toString();
+  }
+}
+
+/// English, like the rest of the documents.
+String documentReturnReason(ReturnReason reason) => switch (reason) {
+      ReturnReason.defective => 'Defective',
+      ReturnReason.wrongItem => 'Wrong item',
+      ReturnReason.damaged => 'Damaged',
+      ReturnReason.changedMind => 'Changed mind',
+      ReturnReason.other => 'Other',
+    };
+
+String documentReturnStatus(ReturnStatus status) => switch (status) {
+      ReturnStatus.none || ReturnStatus.requested => 'Requested',
+      ReturnStatus.approved => 'Approved',
+      ReturnStatus.received => 'Received',
+      ReturnStatus.refunded => 'Refunded',
+      ReturnStatus.rejected => 'Rejected',
+    };
+
+/// After the refund amount: whether it has been paid out yet. Nothing for a
+/// zero refund (an exchange) or a rejected return.
+String documentRefundState(Order order) {
+  if (order.refundAmount <= 0 || order.returnStatus == ReturnStatus.rejected) {
+    return '';
+  }
+  return order.isRefunded ? ' (paid)' : ' (pending)';
 }
 
 class _ReceiptWidget extends StatelessWidget {
@@ -104,6 +194,8 @@ class _ReceiptWidget extends StatelessWidget {
   final String shopName;
   final String sym;
   final double taxRate;
+  final OrderReturnsSummary summary;
+  final String? originalOrderNumber;
   final ui.Image? watermarkIcon;
 
   const _ReceiptWidget({
@@ -111,8 +203,16 @@ class _ReceiptWidget extends StatelessWidget {
     required this.shopName,
     required this.sym,
     required this.taxRate,
+    required this.summary,
+    required this.originalOrderNumber,
     required this.watermarkIcon,
   });
+
+  bool get _isReturn => order.isReturn;
+
+  /// The note shown under the totals: a return's own notes (its `notes`
+  /// field only says which order it's for, which the header shows).
+  String get _notesText => _isReturn ? order.returnNotes : order.notes;
 
   static Color get _brand => DocumentBrand.color;
   static Color get _onBrand => DocumentBrand.onColor;
@@ -123,7 +223,14 @@ class _ReceiptWidget extends StatelessWidget {
   static const _red = Color(0xFFD32F2F);
 
   Color get _badgeColor {
-    switch (order.paymentStatus) {
+    if (_isReturn) {
+      return switch (order.returnStatus) {
+        ReturnStatus.refunded => const Color(0xFF4CAF50),
+        ReturnStatus.rejected => const Color(0xFFF44336),
+        _ => const Color(0xFFFF9800),
+      };
+    }
+    switch (summary.status) {
       case PaymentStatus.paid:
         return const Color(0xFF4CAF50);
       case PaymentStatus.partial:
@@ -134,7 +241,10 @@ class _ReceiptWidget extends StatelessWidget {
   }
 
   String get _badgeText {
-    switch (order.paymentStatus) {
+    if (_isReturn) {
+      return 'RETURN ${documentReturnStatus(order.returnStatus).toUpperCase()}';
+    }
+    switch (summary.status) {
       case PaymentStatus.paid:
         return 'PAID';
       case PaymentStatus.partial:
@@ -167,6 +277,10 @@ class _ReceiptWidget extends StatelessWidget {
                       _header(),
                       const SizedBox(height: 20),
                       _billToCard(),
+                      if (_isReturn) ...[
+                        const SizedBox(height: 12),
+                        _returnDetails(),
+                      ],
                       const SizedBox(height: 20),
                       _itemsTitle(),
                       const SizedBox(height: 8),
@@ -175,7 +289,7 @@ class _ReceiptWidget extends StatelessWidget {
                       _summary(),
                       const SizedBox(height: 20),
                       _paymentBadge(),
-                      if (order.notes.isNotEmpty) ...[
+                      if (_notesText.isNotEmpty) ...[
                         const SizedBox(height: 16),
                         _notes(),
                       ],
@@ -217,7 +331,7 @@ class _ReceiptWidget extends StatelessWidget {
                     fontSize: 20,
                   )),
               const SizedBox(height: 4),
-              Text('Invoice',
+              Text(_isReturn ? 'Return Invoice' : 'Invoice',
                   style: TextStyle(color: _onBrand, fontSize: 12)),
             ],
           ),
@@ -231,7 +345,7 @@ class _ReceiptWidget extends StatelessWidget {
                     fontSize: 14,
                   )),
               const SizedBox(height: 4),
-              Text(DateFormatter.format(order.createdAt),
+              Text(DateFormatter.formatWithTime(order.createdAt),
                   style: TextStyle(color: _onBrand, fontSize: 10)),
             ],
           ),
@@ -251,8 +365,8 @@ class _ReceiptWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Bill To:',
-              style: TextStyle(
+          Text(_isReturn ? 'Customer:' : 'Bill To:',
+              style: const TextStyle(
                 color: _grey600,
                 fontWeight: FontWeight.w700,
                 fontSize: 10,
@@ -277,8 +391,48 @@ class _ReceiptWidget extends StatelessWidget {
     );
   }
 
-  Widget _itemsTitle() => const Text('Order Items',
-      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13));
+  Widget _itemsTitle() => Text(_isReturn ? 'Returned Items' : 'Order Items',
+      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13));
+
+  /// Which order the goods came back from, why, and where the return stands.
+  Widget _returnDetails() {
+    Widget line(String label, String value) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 110,
+                child: Text(label,
+                    style: const TextStyle(color: _grey600, fontSize: 10)),
+              ),
+              Expanded(
+                child: Text(value,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 11)),
+              ),
+            ],
+          ),
+        );
+    final original = originalOrderNumber;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: _grey100,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (original != null && original.isNotEmpty)
+            line('Against order', original),
+          line('Reason', documentReturnReason(order.returnReason)),
+          line('Return status', documentReturnStatus(order.returnStatus)),
+        ],
+      ),
+    );
+  }
 
   Widget _itemsTable() {
     final headerStyle = const TextStyle(fontSize: 11, fontWeight: FontWeight.w700);
@@ -348,7 +502,40 @@ class _ReceiptWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 3),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [Text(label, style: style), Text(value, style: style)],
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Flexible(child: Text(label, style: style)),
+            const SizedBox(width: 8),
+            Text(value, style: style),
+          ],
+        ),
+      );
+    }
+
+    if (_isReturn) {
+      return Align(
+        alignment: Alignment.centerRight,
+        child: SizedBox(
+          width: 260,
+          child: Column(
+            children: [
+              row('Subtotal',
+                  CurrencyFormatter.format(order.subtotal, symbol: sym)),
+              if (order.discountAmount > 0)
+                row('Discount',
+                    '- ${CurrencyFormatter.format(order.discountAmount, symbol: sym)}'),
+              if (order.taxAmount > 0)
+                row('Tax',
+                    CurrencyFormatter.format(order.taxAmount, symbol: sym)),
+              const Divider(height: 12),
+              row('Return Total',
+                  CurrencyFormatter.format(order.totalAmount, symbol: sym),
+                  isTotal: true),
+              row('Refund${documentRefundState(order)}',
+                  CurrencyFormatter.format(order.refundAmount, symbol: sym),
+                  isTotal: true),
+            ],
+          ),
         ),
       );
     }
@@ -356,7 +543,7 @@ class _ReceiptWidget extends StatelessWidget {
     return Align(
       alignment: Alignment.centerRight,
       child: SizedBox(
-        width: 220,
+        width: summary.hasReturns ? 300 : 220,
         child: Column(
           children: [
             row('Subtotal',
@@ -374,11 +561,26 @@ class _ReceiptWidget extends StatelessWidget {
             row('Total',
                 CurrencyFormatter.format(order.totalAmount, symbol: sym),
                 isTotal: true),
-            row('Paid', CurrencyFormatter.format(order.amountPaid, symbol: sym)),
-            if (order.balanceDue > 0)
+            if (!summary.hasReturns) ...[
+              row('Paid', CurrencyFormatter.format(order.amountPaid, symbol: sym)),
+              if (order.balanceDue > 0)
+                row('Balance Due',
+                    CurrencyFormatter.format(order.balanceDue, symbol: sym),
+                    isTotal: true, isRed: true),
+            ] else ...[
+              row('Paid', CurrencyFormatter.format(summary.received, symbol: sym)),
+              for (final r in summary.returns)
+                row(
+                    'Returned ${r.number} (${formatQtyNumber(r.qty)})'
+                    '${r.date != null ? ' · ${DateFormatter.format(r.date!)}' : ''}',
+                    '- ${CurrencyFormatter.format(r.value, symbol: sym)}'),
+              if (summary.refunded > 0)
+                row('Refunded',
+                    CurrencyFormatter.format(summary.refunded, symbol: sym)),
               row('Balance Due',
-                  CurrencyFormatter.format(order.balanceDue, symbol: sym),
-                  isTotal: true, isRed: true),
+                  CurrencyFormatter.format(summary.due, symbol: sym),
+                  isTotal: true, isRed: summary.due > 0),
+            ],
           ],
         ),
       ),
@@ -419,7 +621,7 @@ class _ReceiptWidget extends StatelessWidget {
                 fontSize: 10,
               )),
           const SizedBox(height: 2),
-          Text(order.notes, style: const TextStyle(fontSize: 10)),
+          Text(_notesText, style: const TextStyle(fontSize: 10)),
         ],
       ),
     );

@@ -74,14 +74,24 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
 
   final _menuButton = GlobalKey();
 
+  /// The order's returns, for its invoices (received ones are shown).
+  List<Order> _returnsOf(Order order) =>
+      ref.read(returnsForOrderProvider(order.id)).value ?? const [];
+
   Future<Uint8List> _receipt(
     BuildContext context,
     Order order, {
     required String shopName,
     required String currencySymbol,
     required double taxRate,
+    String? originalOrderNumber,
   }) async {
+    final returns = _returnsOf(order);
     final key = (
+      order.returnStatus,
+      order.refundAmount,
+      originalOrderNumber,
+      [for (final r in returns) '${r.id}:${r.updatedAt}'].join(','),
       order.id,
       order.updatedAt,
       shopName,
@@ -97,7 +107,9 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
       () => PdfService().generateOrderReceipt(order,
           shopName: shopName,
           currencySymbol: currencySymbol,
-          taxRate: taxRate),
+          taxRate: taxRate,
+          returns: returns,
+          originalOrderNumber: originalOrderNumber),
     );
     _receiptKey = key;
     _receiptPdf = bytes;
@@ -187,7 +199,9 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
                           title: Text(s.createReturn),
                           contentPadding: EdgeInsets.zero,
                         )),
-                  if (order.orderStatus != OrderStatus.cancelled) ...[
+                  // A return has its own flow (reject, receive, refund).
+                  if (order.orderStatus != OrderStatus.cancelled &&
+                      !order.isReturn) ...[
                     const PopupMenuDivider(),
                     PopupMenuItem(
                         value: 'cancel',
@@ -469,12 +483,23 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
     final shopName = settings.shopName;
     final currencySymbol = settings.currencySymbol;
     final taxRate = settings.taxRate;
+    // A return's documents name the order the goods came back from.
+    final originalNumber = order.isReturn && order.originalOrderId > 0
+        ? (await (await ref.read(isarProvider.future))
+                .orders
+                .get(order.originalOrderId))
+            ?.orderNumber
+        : null;
+    final fileSuffix = order.isReturn ? 'return' : 'receipt';
+    if (!context.mounted) return;
 
     try {
     switch (action) {
       case 'share_text':
         final text = pdfService.generateWhatsAppText(order,
-            currencySymbol: currencySymbol);
+            currencySymbol: currencySymbol,
+            returns: _returnsOf(order),
+            originalOrderNumber: originalNumber);
         final result = await SharePlus.instance.share(
             ShareParams(text: text, sharePositionOrigin: origin));
         if (context.mounted) confirmShared(context, result);
@@ -484,9 +509,12 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
         final bytes = await _receipt(context, order,
             shopName: shopName,
             currencySymbol: currencySymbol,
-            taxRate: taxRate);
+            taxRate: taxRate,
+            originalOrderNumber: originalNumber);
         final dir = await getTemporaryDirectory();
-        final file = File('${dir.path}/${order.orderNumber}.pdf');
+        final file = File(order.isReturn
+            ? '${dir.path}/${order.orderNumber}_return.pdf'
+            : '${dir.path}/${order.orderNumber}.pdf');
         await file.writeAsBytes(bytes);
         final result = await SharePlus.instance.share(ShareParams(
             files: [XFile(file.path)], sharePositionOrigin: origin));
@@ -499,9 +527,10 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
           final bytes = await _receipt(context, order,
               shopName: shopName,
               currencySymbol: currencySymbol,
-              taxRate: taxRate);
+              taxRate: taxRate,
+            originalOrderNumber: originalNumber);
           await savePdfWithSystemSheet(
-            fileName: '${order.orderNumber}_receipt.pdf',
+            fileName: '${order.orderNumber}_$fileSuffix.pdf',
             bytes: bytes,
             shareOrigin: origin,
           );
@@ -525,9 +554,10 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
         final bytes = await _receipt(context, order,
             shopName: shopName,
             currencySymbol: currencySymbol,
-            taxRate: taxRate);
+            taxRate: taxRate,
+            originalOrderNumber: originalNumber);
 
-        final fileName = '${order.orderNumber}_receipt.pdf';
+        final fileName = '${order.orderNumber}_$fileSuffix.pdf';
         final file = File('$downloadDir/$fileName');
         await file.writeAsBytes(bytes);
         if (context.mounted) {
@@ -543,7 +573,8 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
         final bytes = await _receipt(context, order,
             shopName: shopName,
             currencySymbol: currencySymbol,
-            taxRate: taxRate);
+            taxRate: taxRate,
+            originalOrderNumber: originalNumber);
         final printed =
             await Printing.layoutPdf(onLayout: (_) async => bytes);
         if (context.mounted) confirmPrinted(context, printed);
@@ -581,6 +612,8 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
           currencySymbol: currencySymbol,
           paperWidth: width,
           printer: posPrinter,
+          returns: _returnsOf(order),
+          originalOrderNumber: originalNumber,
         );
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
