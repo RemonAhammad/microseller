@@ -1,6 +1,6 @@
 {
-  "nodeCount": 6587,
-  "edgeCount": 1758,
+  "nodeCount": 6629,
+  "edgeCount": 1795,
   "languages": [
     "c",
     "cpp",
@@ -9,11 +9,11 @@
     "kotlin",
     "swift"
   ],
-  "totalCount": 6587,
+  "totalCount": 6629,
   "readyCount": 0,
   "staleCount": 0,
   "dirty": false,
   "syncing": false,
-  "syncedAt": "2026-11-22T09:52:59.614Z",
-  "lastFile": "first-of-all-bydefault-goofy-sun.md"
+  "syncedAt": "2026-11-23T09:27:50.510Z",
+  "lastFile": "statement_share_test.dart"
 }

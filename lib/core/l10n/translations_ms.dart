@@ -664,6 +664,8 @@ const translationsMs = <String, String>{
   'paymentCollected': 'Dikutip {amount}',
   'amountExceedsDue': 'Jumlah melebihi jumlah hutang ({amount})',
   'customerStatement': 'Penyata Pelanggan',
+  'statementFailed': 'Penyata tidak dapat dibuat. Sila cuba lagi.',
+  'statementShareFailed': 'Penyata telah dibuat tetapi tidak dapat dikongsi. Sila cuba lagi.',
   'statement': 'Penyata',
   'paymentHistory': 'Sejarah Bayaran',
   'noPayments': 'Belum ada bayaran direkodkan',

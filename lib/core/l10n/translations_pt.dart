@@ -664,6 +664,8 @@ const translationsPt = <String, String>{
   'paymentCollected': 'Recebido {amount}',
   'amountExceedsDue': 'O valor é maior que o total devido ({amount})',
   'customerStatement': 'Extrato do cliente',
+  'statementFailed': 'Não foi possível criar o extrato. Tente novamente.',
+  'statementShareFailed': 'O extrato foi criado, mas não foi possível compartilhá-lo. Tente novamente.',
   'statement': 'Extrato',
   'paymentHistory': 'Histórico de pagamentos',
   'noPayments': 'Nenhum pagamento registrado ainda',

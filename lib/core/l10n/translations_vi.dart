@@ -664,6 +664,8 @@ const translationsVi = <String, String>{
   'paymentCollected': 'Đã thu {amount}',
   'amountExceedsDue': 'Số tiền lớn hơn tổng nợ ({amount})',
   'customerStatement': 'Sao kê khách hàng',
+  'statementFailed': 'Không thể tạo sao kê. Vui lòng thử lại.',
+  'statementShareFailed': 'Đã tạo sao kê nhưng không thể chia sẻ. Vui lòng thử lại.',
   'statement': 'Sao kê',
   'paymentHistory': 'Lịch sử thanh toán',
   'noPayments': 'Chưa có thanh toán nào',

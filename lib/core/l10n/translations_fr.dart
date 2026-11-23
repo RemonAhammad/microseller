@@ -664,6 +664,8 @@ const translationsFr = <String, String>{
   'paymentCollected': '{amount} encaissé',
   'amountExceedsDue': 'Le montant dépasse le total dû ({amount})',
   'customerStatement': 'Relevé client',
+  'statementFailed': 'Impossible de créer le relevé. Réessayez.',
+  'statementShareFailed': 'Le relevé a été créé mais n\'a pas pu être partagé. Réessayez.',
   'statement': 'Relevé',
   'paymentHistory': 'Historique des paiements',
   'noPayments': 'Aucun paiement enregistré',

@@ -664,6 +664,8 @@ const translationsBn = <String, String>{
   'paymentCollected': '{amount} আদায় হয়েছে',
   'amountExceedsDue': 'পরিমাণ মোট বাকির ({amount}) চেয়ে বেশি',
   'customerStatement': 'গ্রাহক স্টেটমেন্ট',
+  'statementFailed': 'স্টেটমেন্ট তৈরি করা যায়নি। আবার চেষ্টা করুন।',
+  'statementShareFailed': 'স্টেটমেন্ট তৈরি হয়েছে, কিন্তু শেয়ার করা যায়নি। আবার চেষ্টা করুন।',
   'statement': 'স্টেটমেন্ট',
   'paymentHistory': 'পেমেন্টের ইতিহাস',
   'noPayments': 'এখনো কোনো পেমেন্ট নেই',

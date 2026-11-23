@@ -733,6 +733,8 @@ class _L10nStrings {
   String taxCollectedNote(String amount) =>
       _l10n.tr('taxCollectedNote').replaceAll('{amount}', amount);
   String get customerStatement => _l10n.tr('customerStatement');
+  String get statementFailed => _l10n.tr('statementFailed');
+  String get statementShareFailed => _l10n.tr('statementShareFailed');
   String get statement => _l10n.tr('statement');
   String get paymentHistory => _l10n.tr('paymentHistory');
   String get noPayments => _l10n.tr('noPayments');

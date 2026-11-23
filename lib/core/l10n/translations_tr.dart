@@ -664,6 +664,8 @@ const translationsTr = <String, String>{
   'paymentCollected': '{amount} tahsil edildi',
   'amountExceedsDue': 'Tutar toplam borçtan ({amount}) fazla',
   'customerStatement': 'Müşteri Ekstresi',
+  'statementFailed': 'Ekstre oluşturulamadı. Lütfen tekrar deneyin.',
+  'statementShareFailed': 'Ekstre oluşturuldu ancak paylaşılamadı. Lütfen tekrar deneyin.',
   'statement': 'Ekstre',
   'paymentHistory': 'Ödeme Geçmişi',
   'noPayments': 'Henüz kayıtlı ödeme yok',

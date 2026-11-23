@@ -664,6 +664,8 @@ const translationsUr = <String, String>{
   'paymentCollected': '{amount} وصول ہو گئے',
   'amountExceedsDue': 'رقم کل واجب الادا ({amount}) سے زیادہ ہے',
   'customerStatement': 'گاہک کا گوشوارہ',
+  'statementFailed': 'گوشوارہ نہیں بن سکا۔ دوبارہ کوشش کریں۔',
+  'statementShareFailed': 'گوشوارہ بن گیا لیکن شیئر نہیں ہو سکا۔ دوبارہ کوشش کریں۔',
   'statement': 'گوشوارہ',
   'paymentHistory': 'ادائیگیوں کی تاریخ',
   'noPayments': 'ابھی تک کوئی ادائیگی درج نہیں',

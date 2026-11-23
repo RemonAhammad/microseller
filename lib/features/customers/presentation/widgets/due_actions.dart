@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -102,6 +103,8 @@ Future<void> shareCustomerStatement(
 }) async {
   final s = AppStrings.of(context);
   final settings = ref.read(settingsProvider.notifier);
+  // Read before any await: the task below must not touch `ref`.
+  final isarFuture = ref.read(isarProvider.future);
   final direction = Directionality.of(context);
   final labels = StatementLabels(
     title: s.customerStatement,
@@ -117,10 +120,11 @@ Future<void> shareCustomerStatement(
     pageOf: s.pageOf,
   );
 
+  // Where it failed, so the log and the message can say.
+  var stage = 'load';
   try {
-
     final file = await runWithProgress(context, () async {
-      final isar = await ref.read(isarProvider.future);
+      final isar = await isarFuture;
 
       final orders = (await isar.orders
           .where()
@@ -133,6 +137,7 @@ Future<void> shareCustomerStatement(
           .findAll())
         ..sort((a, b) => a.id.compareTo(b.id));
 
+      stage = 'pdf';
       final service = StatementService();
       final rows = service.buildRows(orders, payments, labels: labels);
       final bytes = await service.generateStatementPdf(
@@ -144,18 +149,40 @@ Future<void> shareCustomerStatement(
         currencySymbol: settings.currencySymbol,
         textDirection: direction,
       );
+      stage = 'file';
       final dir = await getTemporaryDirectory();
-      final safeName = customer.name.replaceAll(RegExp(r'[^\w]+'), '_');
-      final file = File('${dir.path}/statement_$safeName.pdf');
-      await file.writeAsBytes(bytes);
+      final file = File('${dir.path}/${statementFileName(customer)}');
+      await file.writeAsBytes(bytes, flush: true);
       return file;
     });
+    stage = 'share';
     final result = await SharePlus.instance.share(ShareParams(
-        files: [XFile(file.path)], sharePositionOrigin: shareOrigin));
+        files: [XFile(file.path, mimeType: 'application/pdf')],
+        sharePositionOrigin: shareOrigin));
     if (context.mounted) confirmShared(context, result);
-  } catch (e) {
-    if (context.mounted) context.showErrorSnackBar(s.error);
+  } catch (e, st) {
+    developer.log('Customer statement failed at $stage',
+        name: 'statement', error: e, stackTrace: st);
+    debugPrint('Customer statement failed at $stage: $e');
+    debugPrintStack(stackTrace: st);
+    if (context.mounted) {
+      context.showErrorSnackBar(
+          stage == 'share' ? s.statementShareFailed : s.statementFailed);
+    }
   }
+}
+
+/// The statement's file name: the customer's name in any script (letters,
+/// their marks, digits), at most 40 characters, else the customer's id.
+@visibleForTesting
+String statementFileName(Customer customer) {
+  final words = customer.name
+      .replaceAll(RegExp(r'[^\p{L}\p{M}\p{N}]+', unicode: true), '_')
+      .replaceAll(RegExp(r'^_+|_+$'), '');
+  final base = words.isEmpty
+      ? '${customer.id}'
+      : String.fromCharCodes(words.runes.take(40));
+  return 'statement_$base.pdf';
 }
 
 Future<void> showCollectPaymentSheet(

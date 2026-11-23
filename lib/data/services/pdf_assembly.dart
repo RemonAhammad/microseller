@@ -12,14 +12,26 @@ Future<Uint8List> assemblePdf(
   PagePixels? jpegPages,
 }) async {
   final encoded = <Uint8List>[];
+  var converted = false;
   for (final png in pages) {
     final size = jpegPages == null ? null : _pngPixels(png);
-    encoded.add(size != null && size == jpegPages
+    final page = size != null && size == jpegPages
         ? await _pngToJpeg(png, size)
-        : png);
+        : png;
+    converted |= !identical(page, png);
+    encoded.add(page);
   }
 
-  return compute(_buildPdf, encoded, debugLabel: 'assemblePdf');
+  try {
+    return await compute(_buildPdf, encoded, debugLabel: 'assemblePdf');
+  } catch (e, st) {
+    // A JPEG page the PDF can't embed shouldn't cost the whole document:
+    // build it again from the original PNG pages.
+    if (!converted) rethrow;
+    developer.log('PDF with JPEG pages failed; retrying with PNG pages',
+        name: 'assemblePdf', error: e, stackTrace: st);
+    return compute(_buildPdf, pages, debugLabel: 'assemblePdf-png');
+  }
 }
 
 Future<Uint8List> _buildPdf(List<Uint8List> pages) {
@@ -53,6 +65,11 @@ PagePixels? _pngPixels(Uint8List bytes) {
 
 const _jpegQuality = 75;
 
+/// How long one page's JPEG encode may take before the page stays PNG, so a
+/// native encoder that never answers can't hold a progress spinner forever.
+@visibleForTesting
+Duration jpegEncodeTimeout = const Duration(seconds: 20);
+
 Future<Uint8List> _pngToJpeg(Uint8List png, PagePixels size) async {
   try {
     final jpeg = await FlutterImageCompress.compressWithList(
@@ -63,11 +80,24 @@ Future<Uint8List> _pngToJpeg(Uint8List png, PagePixels size) async {
       minHeight: size.height,
       autoCorrectionAngle: false,
       keepExif: false,
-    );
-    if (jpeg.length > 2 && jpeg[0] == 0xFF && jpeg[1] == 0xD8) return jpeg;
+    ).timeout(jpegEncodeTimeout);
+    if (_isJpegOf(jpeg, size)) return jpeg;
+    developer.log('JPEG page invalid; keeping PNG', name: 'assemblePdf');
   } catch (e, st) {
     developer.log('JPEG page encode failed; keeping PNG',
         name: 'assemblePdf', error: e, stackTrace: st);
   }
   return png;
+}
+
+/// A JPEG the PDF can embed: it starts like one and its frame header (read
+/// the way the pdf package reads it) has the page's size.
+bool _isJpegOf(Uint8List jpeg, PagePixels size) {
+  if (jpeg.length < 4 || jpeg[0] != 0xFF || jpeg[1] != 0xD8) return false;
+  try {
+    final info = PdfJpegInfo(jpeg);
+    return info.width == size.width && info.height == size.height;
+  } catch (_) {
+    return false;
+  }
 }

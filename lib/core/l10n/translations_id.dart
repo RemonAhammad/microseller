@@ -664,6 +664,8 @@ const translationsId = <String, String>{
   'paymentCollected': 'Diterima {amount}',
   'amountExceedsDue': 'Jumlah melebihi total utang ({amount})',
   'customerStatement': 'Laporan Pelanggan',
+  'statementFailed': 'Laporan tidak dapat dibuat. Silakan coba lagi.',
+  'statementShareFailed': 'Laporan sudah dibuat, tetapi tidak dapat dibagikan. Silakan coba lagi.',
   'statement': 'Laporan',
   'paymentHistory': 'Riwayat Pembayaran',
   'noPayments': 'Belum ada pembayaran tercatat',

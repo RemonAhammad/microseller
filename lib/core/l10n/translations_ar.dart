@@ -663,6 +663,8 @@ const translationsAr = <String, String>{
   'paymentCollected': 'تم تحصيل {amount}',
   'amountExceedsDue': 'المبلغ أكبر من إجمالي المستحق ({amount})',
   'customerStatement': 'كشف حساب العميل',
+  'statementFailed': 'تعذّر إنشاء كشف الحساب. حاول مرة أخرى.',
+  'statementShareFailed': 'تم إنشاء كشف الحساب لكن تعذّرت مشاركته. حاول مرة أخرى.',
   'statement': 'كشف حساب',
   'paymentHistory': 'سجل المدفوعات',
   'noPayments': 'لا توجد مدفوعات مسجلة بعد',

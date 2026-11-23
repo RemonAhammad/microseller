@@ -664,6 +664,8 @@ const translationsEn = <String, String>{
   'paymentCollected': 'Collected {amount}',
   'amountExceedsDue': 'Amount is more than the total due ({amount})',
   'customerStatement': 'Customer Statement',
+  'statementFailed': 'Couldn\'t create the statement. Please try again.',
+  'statementShareFailed': 'The statement was created but couldn\'t be shared. Please try again.',
   'statement': 'Statement',
   'paymentHistory': 'Payment History',
   'noPayments': 'No payments recorded yet',

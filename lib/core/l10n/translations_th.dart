@@ -664,6 +664,8 @@ const translationsTh = <String, String>{
   'paymentCollected': 'รับเงินแล้ว {amount}',
   'amountExceedsDue': 'จำนวนเงินเกินยอดค้างทั้งหมด ({amount})',
   'customerStatement': 'รายการเดินบัญชีลูกค้า',
+  'statementFailed': 'ไม่สามารถสร้างรายการเดินบัญชีได้ โปรดลองอีกครั้ง',
+  'statementShareFailed': 'สร้างรายการเดินบัญชีแล้ว แต่แชร์ไม่ได้ โปรดลองอีกครั้ง',
   'statement': 'รายการเดินบัญชี',
   'paymentHistory': 'ประวัติการชำระเงิน',
   'noPayments': 'ยังไม่มีการชำระเงิน',

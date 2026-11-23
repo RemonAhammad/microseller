@@ -663,6 +663,8 @@ const translationsEs = <String, String>{
   'paymentCollected': 'Cobrado {amount}',
   'amountExceedsDue': 'El monto supera la deuda total ({amount})',
   'customerStatement': 'Estado de cuenta del cliente',
+  'statementFailed': 'No se pudo crear el estado de cuenta. Inténtalo de nuevo.',
+  'statementShareFailed': 'El estado de cuenta se creó, pero no se pudo compartir. Inténtalo de nuevo.',
   'statement': 'Estado de cuenta',
   'paymentHistory': 'Historial de pagos',
   'noPayments': 'Aún no hay pagos registrados',
