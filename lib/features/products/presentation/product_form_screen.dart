@@ -40,6 +40,7 @@ import '../../suppliers/presentation/supplier_form_screen.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class ProductFormScreen extends ConsumerStatefulWidget {
   final Product? product;
@@ -736,7 +737,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final photo = resolveProductImagePath(_imagePath);
 
     return Scaffold(
-      appBar: AppBar(title: Text(isEdit ? s.editProduct : s.addProduct)),
+      appBar: AppBar(title: Text(isEdit ? s.editProduct : s.addProduct), actions: const [SectionHelpButton('product_form')]),
 
       body: Form(
         key: _formKey,

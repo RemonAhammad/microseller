@@ -12,6 +12,7 @@ import '../providers/settings_provider.dart';
 import '../providers/trash_provider.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class RecycleBinScreen extends ConsumerWidget {
   const RecycleBinScreen({super.key});
@@ -44,6 +45,7 @@ class RecycleBinScreen extends ConsumerWidget {
                   ),
             orElse: () => const SizedBox.shrink(),
           ),
+          const SectionHelpButton('recycle_bin'),
         ],
       ),
       body: entriesAsync.when(

@@ -12,6 +12,7 @@ import '../../../shared/widgets/app_text_field.dart';
 import '../../../shared/widgets/app_button.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class CustomerFormScreen extends ConsumerStatefulWidget {
   final Customer? customer;
@@ -127,6 +128,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEdit ? s.editCustomer : s.addCustomer),
+        actions: const [SectionHelpButton('customer_form')],
       ),
       body: Form(
         key: _formKey,

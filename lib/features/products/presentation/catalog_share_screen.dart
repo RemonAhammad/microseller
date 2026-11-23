@@ -19,6 +19,7 @@ import '../providers/product_provider.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
 import '../../../shared/widgets/action_feedback.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class CatalogShareScreen extends ConsumerStatefulWidget {
   const CatalogShareScreen({super.key});
@@ -74,6 +75,7 @@ class _CatalogShareScreenState extends ConsumerState<CatalogShareScreen> {
             },
             orElse: () => const SizedBox.shrink(),
           ),
+          const SectionHelpButton('catalog_share'),
         ],
       ),
       body: productsAsync.when(

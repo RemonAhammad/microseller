@@ -11,6 +11,7 @@ import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/animated_entrance.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class PurchaseListScreen extends ConsumerWidget {
   const PurchaseListScreen({super.key});
@@ -23,7 +24,7 @@ class PurchaseListScreen extends ConsumerWidget {
     final cs = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(s.purchases)),
+      appBar: AppBar(title: Text(s.purchases), actions: const [SectionHelpButton('purchase_list')]),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/suppliers/purchases/add'),
         tooltip: s.newPurchase,

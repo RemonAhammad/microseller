@@ -18,6 +18,7 @@ import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/entry_date_field.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class StockAdjustmentScreen extends ConsumerStatefulWidget {
   final int productId;
@@ -182,7 +183,7 @@ class _StockAdjustmentScreenState
     final cs = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(s.stockAdjustment)),
+      appBar: AppBar(title: Text(s.stockAdjustment), actions: const [SectionHelpButton('stock_adjustment')]),
       body: isarAsync.when(
         data: (isar) => StreamBuilder<Product?>(
           stream: _productStream ??= isar.products

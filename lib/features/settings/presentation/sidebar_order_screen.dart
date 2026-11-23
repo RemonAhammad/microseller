@@ -7,6 +7,7 @@ import '../../../core/constants/sidebar_items.dart';
 import '../../../shared/widgets/app_zoom.dart';
 import '../providers/settings_provider.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
+import '../../../shared/widgets/section_help.dart';
 
 class SidebarOrderScreen extends ConsumerStatefulWidget {
   const SidebarOrderScreen({super.key});
@@ -69,6 +70,7 @@ class _SidebarOrderScreenState extends ConsumerState<SidebarOrderScreen> {
             icon: const ThinIcon(tabler.Refresh.new),
             onPressed: _resetToDefault,
           ),
+          const SectionHelpButton('sidebar_order'),
         ],
       ),
       body: Column(

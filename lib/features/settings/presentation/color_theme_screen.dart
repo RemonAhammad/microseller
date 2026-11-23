@@ -16,6 +16,7 @@ import '../../../shared/widgets/confirm_dialog.dart';
 import '../../dashboard/presentation/widgets/stat_card.dart';
 import '../providers/settings_provider.dart';
 import 'widgets/color_theme_editor.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class ColorThemeScreen extends ConsumerWidget {
   const ColorThemeScreen({super.key});
@@ -79,7 +80,7 @@ class ColorThemeScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text(s.colorTheme)),
+      appBar: AppBar(title: Text(s.colorTheme), actions: const [SectionHelpButton('color_theme')]),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         children: [

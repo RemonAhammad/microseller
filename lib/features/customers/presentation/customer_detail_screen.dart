@@ -21,6 +21,7 @@ import '../../../shared/widgets/confirm_dialog.dart';
 import '../../orders/presentation/widgets/order_card.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class CustomerDetailScreen extends ConsumerWidget {
   final int customerId;
@@ -89,6 +90,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                   }
                 },
               ),
+              const SectionHelpButton('customer_detail'),
             ],
           ),
 

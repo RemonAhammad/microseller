@@ -11,6 +11,7 @@ import '../../../core/utils/validators.dart';
 import '../../../shared/widgets/app_text_field.dart';
 import '../../../shared/widgets/app_button.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
+import '../../../shared/widgets/section_help.dart';
 
 class SupplierFormScreen extends ConsumerStatefulWidget {
   final Supplier? supplier;
@@ -119,7 +120,7 @@ class _SupplierFormScreenState extends ConsumerState<SupplierFormScreen> {
     final s = AppStrings.of(context);
     final isEdit = _existing != null || widget.supplierId != null;
     return Scaffold(
-      appBar: AppBar(title: Text(isEdit ? s.editSupplier : s.addSupplier)),
+      appBar: AppBar(title: Text(isEdit ? s.editSupplier : s.addSupplier), actions: const [SectionHelpButton('supplier_form')]),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(

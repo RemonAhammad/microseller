@@ -12,6 +12,7 @@ import '../../../shared/widgets/empty_state.dart';
 import '../../orders/presentation/widgets/order_status_badge.dart';
 import '../providers/returnable_orders_provider.dart';
 import 'create_return_screen.dart';
+import '../../../shared/widgets/section_help.dart';
 
 /// Step one of a return started from the Returns screen: which order the
 /// goods came back from. Picking one opens [CreateReturnScreen]; saving
@@ -78,6 +79,7 @@ class _ChooseReturnOrderScreenState
             ),
           ),
         ),
+        actions: const [SectionHelpButton('choose_return_order')],
       ),
       body: ordersAsync.when(
         data: (all) {

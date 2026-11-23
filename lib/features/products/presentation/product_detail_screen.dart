@@ -17,6 +17,7 @@ import '../../../data/models/product_serial.dart';
 import 'widgets/stock_badge.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class ProductDetailScreen extends ConsumerWidget {
   final int productId;
@@ -85,6 +86,7 @@ class ProductDetailScreen extends ConsumerWidget {
                       }
                     },
                   ),
+                  const SectionHelpButton('product_detail'),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
                   background: photo != null

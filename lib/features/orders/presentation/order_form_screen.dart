@@ -49,6 +49,7 @@ import '../../../data/services/pos_printer_service.dart';
 import '../../../shared/widgets/scanner_camera.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter_thermal_printer/utils/printer.dart' as pos;
+import '../../../shared/widgets/section_help.dart';
 
 class OrderFormScreen extends ConsumerStatefulWidget {
   final Order? order;
@@ -1124,7 +1125,7 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
     final cs = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(_isEditing ? s.editOrder : s.addOrder)),
+      appBar: AppBar(title: Text(_isEditing ? s.editOrder : s.addOrder), actions: const [SectionHelpButton('order_form')]),
       body: Column(
         children: [
           Expanded(

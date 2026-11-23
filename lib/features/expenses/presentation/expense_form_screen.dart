@@ -12,6 +12,7 @@ import '../../../shared/widgets/app_text_field.dart';
 import '../../../shared/widgets/app_button.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class ExpenseFormScreen extends ConsumerStatefulWidget {
   final Expense? expense;
@@ -137,6 +138,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEdit ? s.editExpense : s.addExpense),
+        actions: const [SectionHelpButton('expense_form')],
       ),
       body: Form(
         key: _formKey,

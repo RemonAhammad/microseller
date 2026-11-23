@@ -39,6 +39,7 @@ import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../data/services/pos_printer_service.dart';
 import 'package:flutter_thermal_printer/utils/printer.dart' as pos;
 import '../../../core/constants/app_icons.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class OrderDetailScreen extends ConsumerWidget {
   final int orderId;
@@ -151,6 +152,7 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
                 icon: const ThinIcon(tabler.Pencil.new),
                 onPressed: () => context.push('/orders/${order.id}/edit'),
               ),
+              const SectionHelpButton('order_detail'),
               PopupMenuButton<String>(
                 key: _menuButton,
                 onSelected: (action) => _handleAction(context, ref, order,

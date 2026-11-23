@@ -15,6 +15,7 @@ import '../../../../shared/widgets/color_picker.dart';
 import '../../../../shared/widgets/confirm_dialog.dart';
 import '../../../dashboard/presentation/widgets/stat_card.dart';
 import '../../providers/settings_provider.dart';
+import '../../../../shared/widgets/section_help.dart';
 
 const kMaxColorThemeNameLength = 30;
 
@@ -200,6 +201,7 @@ class _ColorThemeEditorState extends ConsumerState<ColorThemeEditor> {
               icon: const ThinIcon(tabler.Trash.new, size: 22),
               onPressed: _saving ? null : _delete,
             ),
+          const SectionHelpButton('color_theme_editor'),
         ],
       ),
       body: Form(

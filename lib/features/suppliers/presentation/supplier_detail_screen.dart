@@ -17,6 +17,7 @@ import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
 import '../../../shared/widgets/action_feedback.dart';
 import '../../../core/utils/quantity.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class SupplierDetailScreen extends ConsumerWidget {
   final int supplierId;
@@ -78,6 +79,7 @@ class SupplierDetailScreen extends ConsumerWidget {
                   }
                 },
               ),
+              const SectionHelpButton('supplier_detail'),
             ],
           ),
 

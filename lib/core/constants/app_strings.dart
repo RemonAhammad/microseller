@@ -928,6 +928,9 @@ class _L10nStrings {
   String get helpAboutScreen => _l10n.tr('helpAboutScreen');
   String get helpWhenToUse => _l10n.tr('helpWhenToUse');
   String get helpWorksWith => _l10n.tr('helpWorksWith');
+  String get helpOnThisScreen => _l10n.tr('helpOnThisScreen');
+  String get helpNumbersMean => _l10n.tr('helpNumbersMean');
+  String get helpTips => _l10n.tr('helpTips');
 
   // Support
   String get helpAndSupport => _l10n.tr('helpAndSupport');

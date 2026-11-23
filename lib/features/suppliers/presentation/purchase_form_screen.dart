@@ -22,6 +22,7 @@ import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/entry_date_field.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class PurchaseFormScreen extends ConsumerStatefulWidget {
   final int? supplierId;
@@ -269,7 +270,7 @@ class _PurchaseFormScreenState extends ConsumerState<PurchaseFormScreen> {
     final cs = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(s.newPurchase)),
+      appBar: AppBar(title: Text(s.newPurchase), actions: const [SectionHelpButton('purchase_form')]),
       body: SingleChildScrollView(
         controller: _scrollCtrl,
         padding: const EdgeInsets.all(16),

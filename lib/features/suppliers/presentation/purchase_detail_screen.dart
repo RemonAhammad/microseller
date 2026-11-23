@@ -15,6 +15,7 @@ import '../../../shared/widgets/confirm_dialog.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
 import '../../../shared/widgets/action_feedback.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class PurchaseDetailScreen extends ConsumerWidget {
   final int purchaseId;
@@ -114,6 +115,7 @@ class _BodyState extends ConsumerState<_Body> {
                   }
                 },
               ),
+              const SectionHelpButton('purchase_detail'),
             ],
           ),
           body: SingleChildScrollView(

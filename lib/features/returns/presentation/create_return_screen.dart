@@ -16,6 +16,7 @@ import '../../../shared/widgets/app_text_field.dart';
 import '../../../shared/widgets/app_button.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
+import '../../../shared/widgets/section_help.dart';
 
 class CreateReturnScreen extends ConsumerStatefulWidget {
   final Order originalOrder;
@@ -192,7 +193,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
     };
 
     return Scaffold(
-      appBar: AppBar(title: Text(s.createReturnTitle)),
+      appBar: AppBar(title: Text(s.createReturnTitle), actions: const [SectionHelpButton('create_return')]),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
