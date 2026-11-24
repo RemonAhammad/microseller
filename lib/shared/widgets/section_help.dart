@@ -263,7 +263,7 @@ const kSectionHelp = {
   'order_detail': SectionHelp(
     'helpOrderDetail',
     hasTitle: true,
-    controls: ['Steps', 'Payment', 'Menu', 'Delivery', 'Return', 'Returns', 'Cancel'],
+    controls: ['Steps', 'Payment', 'Menu', 'Email', 'Delivery', 'Return', 'Returns', 'Cancel'],
     numbers: ['Due', 'Returned'],
     tips: 1,
   ),
@@ -294,7 +294,7 @@ const kSectionHelp = {
   'customer_form': SectionHelp(
     'helpCustomerForm',
     hasTitle: true,
-    controls: ['Phone', 'Type', 'Address'],
+    controls: ['Phone', 'Email', 'Type', 'Address'],
   ),
   'supplier_detail': SectionHelp(
     'helpSupplierDetail',

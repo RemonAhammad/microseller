@@ -109,6 +109,7 @@ dependencies:
   # Direct only to size the SVG picture cache (tabler_icons_next renders via it).
   flutter_svg: ^2.3.0
   in_app_review: ^2.0.12
+  flutter_email_sender: ^11.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

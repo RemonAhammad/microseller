@@ -123,7 +123,8 @@ class _CustomerListScreenState extends ConsumerState<CustomerListScreen> {
                   (_tag == null || c.tag == _tag) &&
                   (_query.isEmpty ||
                       c.name.toLowerCase().contains(_query) ||
-                      NumberInput.phoneMatches(c.phone, _query)))
+                      NumberInput.phoneMatches(c.phone, _query) ||
+                      c.email.toLowerCase().contains(_query)))
               .toList();
 
           if (customers.isEmpty && _tag != null && allCustomers.isNotEmpty) {

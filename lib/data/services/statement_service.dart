@@ -323,6 +323,11 @@ class _StatementPage extends StatelessWidget {
               if (customer.phone.isNotEmpty)
                 Text(customer.phone,
                     style: const TextStyle(color: _grey600, fontSize: 12)),
+              // Left to right in Arabic and Urdu statements too.
+              if (customer.hasEmail)
+                Text(customer.email.trim(),
+                    textDirection: TextDirection.ltr,
+                    style: const TextStyle(color: _grey600, fontSize: 12)),
               if (customer.address.isNotEmpty)
                 Text(customer.address,
                     style: const TextStyle(color: _grey600, fontSize: 12)),

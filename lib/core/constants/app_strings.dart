@@ -910,6 +910,54 @@ class _L10nStrings {
   String get copyNumber => _l10n.tr('copyNumber');
   String get numberCopied => _l10n.tr('numberCopied');
 
+  String get email => _l10n.tr('email');
+  String get invalidEmail => _l10n.tr('invalidEmail');
+  String get emailCustomer => _l10n.tr('emailCustomer');
+  String get copyEmail => _l10n.tr('copyEmail');
+  String get emailCopied => _l10n.tr('emailCopied');
+  String get mailNotAvailable => _l10n.tr('mailNotAvailable');
+  String get emailInvoice => _l10n.tr('emailInvoice');
+  String get emailStatement => _l10n.tr('emailStatement');
+  String get emailReminder => _l10n.tr('emailReminder');
+  String get sendStatement => _l10n.tr('sendStatement');
+  String get sendReminder => _l10n.tr('sendReminder');
+  String get openedInMailApp => _l10n.tr('openedInMailApp');
+  String get noMailAppShareInstead => _l10n.tr('noMailAppShareInstead');
+  String get emailAskTitle => _l10n.tr('emailAskTitle');
+  String emailAskNoEmail(String name) =>
+      _l10n.tr('emailAskNoEmail').replaceAll('{name}', name);
+  String get emailAskNoCustomer => _l10n.tr('emailAskNoCustomer');
+  String saveEmailToCustomer(String name) =>
+      _l10n.tr('saveEmailToCustomer').replaceAll('{name}', name);
+  String get openMailApp => _l10n.tr('openMailApp');
+  String emailSubjectInvoice(String number, String shop) => _l10n
+      .tr('emailSubjectInvoice')
+      .replaceAll('{number}', number)
+      .replaceAll('{shop}', shop);
+  String emailSubjectReturn(String number, String shop) => _l10n
+      .tr('emailSubjectReturn')
+      .replaceAll('{number}', number)
+      .replaceAll('{shop}', shop);
+  String emailSubjectStatement(String shop) =>
+      _l10n.tr('emailSubjectStatement').replaceAll('{shop}', shop);
+  String emailSubjectReminder(String shop) =>
+      _l10n.tr('emailSubjectReminder').replaceAll('{shop}', shop);
+  String get emailHello => _l10n.tr('emailHello');
+  String emailInvoiceIntro(String number, String date) => _l10n
+      .tr('emailInvoiceIntro')
+      .replaceAll('{number}', number)
+      .replaceAll('{date}', date);
+  String emailReturnIntro(String number, String order) => _l10n
+      .tr('emailReturnIntro')
+      .replaceAll('{number}', number)
+      .replaceAll('{order}', order);
+  String emailReturnIntroPlain(String number) =>
+      _l10n.tr('emailReturnIntroPlain').replaceAll('{number}', number);
+  String get emailStatementIntro => _l10n.tr('emailStatementIntro');
+  String get emailThanks => _l10n.tr('emailThanks');
+  String get emailInvoiceAfterSave => _l10n.tr('emailInvoiceAfterSave');
+  String get emailInvoiceAfterSaveDesc => _l10n.tr('emailInvoiceAfterSaveDesc');
+
   String dateAtTime(String date, String time) =>
       _l10n.tr('dateAtTime').replaceAll('{date}', date).replaceAll('{time}', time);
   String get entryDateNow => _l10n.tr('entryDateNow');

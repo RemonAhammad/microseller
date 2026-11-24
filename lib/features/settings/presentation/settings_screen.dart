@@ -583,6 +583,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: const [DecimalInputFormatter.percent()],
               ),
+              const Divider(height: 1),
+              _SwitchRow(
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: brand.primary.withAlpha(26),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ThinIcon(tabler.MailForward.new,
+                      color: brand.primary, size: 20),
+                ),
+                title: Text(s.emailInvoiceAfterSave),
+                subtitle: Text(
+                  s.emailInvoiceAfterSaveDesc,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+                value: ref.watch(settingsProvider
+                    .select((m) => m['emailInvoiceAfterSave'] == true)),
+                onChanged: (v) => ref
+                    .read(settingsProvider.notifier)
+                    .updateEmailInvoiceAfterSave(v),
+              ),
             ],
           ),
           const SizedBox(height: 16),

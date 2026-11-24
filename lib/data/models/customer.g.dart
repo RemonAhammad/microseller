@@ -23,27 +23,28 @@ const CustomerSchema = CollectionSchema(
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
-    r'name': PropertySchema(id: 2, name: r'name', type: IsarType.string),
-    r'notes': PropertySchema(id: 3, name: r'notes', type: IsarType.string),
+    r'email': PropertySchema(id: 2, name: r'email', type: IsarType.string),
+    r'name': PropertySchema(id: 3, name: r'name', type: IsarType.string),
+    r'notes': PropertySchema(id: 4, name: r'notes', type: IsarType.string),
     r'outstandingBalance': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'outstandingBalance',
       type: IsarType.double,
     ),
-    r'phone': PropertySchema(id: 5, name: r'phone', type: IsarType.string),
+    r'phone': PropertySchema(id: 6, name: r'phone', type: IsarType.string),
     r'tag': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'tag',
       type: IsarType.string,
       enumMap: _CustomertagEnumValueMap,
     ),
     r'totalOrders': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'totalOrders',
       type: IsarType.long,
     ),
     r'totalSpent': PropertySchema(
-      id: 8,
+      id: 9,
       name: r'totalSpent',
       type: IsarType.double,
     ),
@@ -85,6 +86,7 @@ int _customerEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.address.length * 3;
+  bytesCount += 3 + object.email.length * 3;
   bytesCount += 3 + object.name.length * 3;
   bytesCount += 3 + object.notes.length * 3;
   bytesCount += 3 + object.phone.length * 3;
@@ -100,13 +102,14 @@ void _customerSerialize(
 ) {
   writer.writeString(offsets[0], object.address);
   writer.writeDateTime(offsets[1], object.createdAt);
-  writer.writeString(offsets[2], object.name);
-  writer.writeString(offsets[3], object.notes);
-  writer.writeDouble(offsets[4], object.outstandingBalance);
-  writer.writeString(offsets[5], object.phone);
-  writer.writeString(offsets[6], object.tag.name);
-  writer.writeLong(offsets[7], object.totalOrders);
-  writer.writeDouble(offsets[8], object.totalSpent);
+  writer.writeString(offsets[2], object.email);
+  writer.writeString(offsets[3], object.name);
+  writer.writeString(offsets[4], object.notes);
+  writer.writeDouble(offsets[5], object.outstandingBalance);
+  writer.writeString(offsets[6], object.phone);
+  writer.writeString(offsets[7], object.tag.name);
+  writer.writeLong(offsets[8], object.totalOrders);
+  writer.writeDouble(offsets[9], object.totalSpent);
 }
 
 Customer _customerDeserialize(
@@ -118,16 +121,17 @@ Customer _customerDeserialize(
   final object = Customer(
     address: reader.readStringOrNull(offsets[0]) ?? '',
     createdAt: reader.readDateTimeOrNull(offsets[1]),
+    email: reader.readStringOrNull(offsets[2]) ?? '',
     id: id,
-    name: reader.readString(offsets[2]),
-    notes: reader.readStringOrNull(offsets[3]) ?? '',
-    outstandingBalance: reader.readDoubleOrNull(offsets[4]) ?? 0.0,
-    phone: reader.readStringOrNull(offsets[5]) ?? '',
+    name: reader.readString(offsets[3]),
+    notes: reader.readStringOrNull(offsets[4]) ?? '',
+    outstandingBalance: reader.readDoubleOrNull(offsets[5]) ?? 0.0,
+    phone: reader.readStringOrNull(offsets[6]) ?? '',
     tag:
-        _CustomertagValueEnumMap[reader.readStringOrNull(offsets[6])] ??
+        _CustomertagValueEnumMap[reader.readStringOrNull(offsets[7])] ??
         CustomerTag.newCustomer,
-    totalOrders: reader.readLongOrNull(offsets[7]) ?? 0,
-    totalSpent: reader.readDoubleOrNull(offsets[8]) ?? 0.0,
+    totalOrders: reader.readLongOrNull(offsets[8]) ?? 0,
+    totalSpent: reader.readDoubleOrNull(offsets[9]) ?? 0.0,
   );
   return object;
 }
@@ -144,20 +148,22 @@ P _customerDeserializeProp<P>(
     case 1:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset) ?? '') as P;
     case 3:
-      return (reader.readStringOrNull(offset) ?? '') as P;
+      return (reader.readString(offset)) as P;
     case 4:
-      return (reader.readDoubleOrNull(offset) ?? 0.0) as P;
-    case 5:
       return (reader.readStringOrNull(offset) ?? '') as P;
+    case 5:
+      return (reader.readDoubleOrNull(offset) ?? 0.0) as P;
     case 6:
+      return (reader.readStringOrNull(offset) ?? '') as P;
+    case 7:
       return (_CustomertagValueEnumMap[reader.readStringOrNull(offset)] ??
               CustomerTag.newCustomer)
           as P;
-    case 7:
-      return (reader.readLongOrNull(offset) ?? 0) as P;
     case 8:
+      return (reader.readLongOrNull(offset) ?? 0) as P;
+    case 9:
       return (reader.readDoubleOrNull(offset) ?? 0.0) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -639,6 +645,152 @@ extension CustomerQueryFilter
           upper: upper,
           includeUpper: includeUpper,
         ),
+      );
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> emailEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'email',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> emailGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'email',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> emailLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'email',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> emailBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'email',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> emailStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'email',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> emailEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'email',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> emailContains(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'email',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> emailMatches(
+    String pattern, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'email',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> emailIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'email', value: ''),
+      );
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterFilterCondition> emailIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'email', value: ''),
       );
     });
   }
@@ -1522,6 +1674,18 @@ extension CustomerQuerySortBy on QueryBuilder<Customer, Customer, QSortBy> {
     });
   }
 
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByEmail() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'email', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> sortByEmailDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'email', Sort.desc);
+    });
+  }
+
   QueryBuilder<Customer, Customer, QAfterSortBy> sortByName() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'name', Sort.asc);
@@ -1631,6 +1795,18 @@ extension CustomerQuerySortThenBy
   QueryBuilder<Customer, Customer, QAfterSortBy> thenByCreatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByEmail() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'email', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Customer, Customer, QAfterSortBy> thenByEmailDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'email', Sort.desc);
     });
   }
 
@@ -1748,6 +1924,14 @@ extension CustomerQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Customer, Customer, QDistinct> distinctByEmail({
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'email', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Customer, Customer, QDistinct> distinctByName({
     bool caseSensitive = true,
   }) {
@@ -1819,6 +2003,12 @@ extension CustomerQueryProperty
     });
   }
 
+  QueryBuilder<Customer, String, QQueryOperations> emailProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'email');
+    });
+  }
+
   QueryBuilder<Customer, String, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
@@ -1871,6 +2061,7 @@ Customer _$CustomerFromJson(Map<String, dynamic> json) => Customer(
   id: (json['id'] as num?)?.toInt() ?? Isar.autoIncrement,
   name: json['name'] as String,
   phone: json['phone'] as String? ?? '',
+  email: json['email'] as String? ?? '',
   address: json['address'] as String? ?? '',
   notes: json['notes'] as String? ?? '',
   tag:
@@ -1888,6 +2079,7 @@ Map<String, dynamic> _$CustomerToJson(Customer instance) => <String, dynamic>{
   'id': instance.id,
   'name': instance.name,
   'phone': instance.phone,
+  'email': instance.email,
   'address': instance.address,
   'notes': instance.notes,
   'tag': _$CustomerTagEnumMap[instance.tag]!,

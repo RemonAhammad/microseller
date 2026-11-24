@@ -40,6 +40,7 @@ import '../../../data/services/pos_printer_service.dart';
 import 'package:flutter_thermal_printer/utils/printer.dart' as pos;
 import '../../../core/constants/app_icons.dart';
 import '../../../shared/widgets/section_help.dart';
+import '../../../shared/widgets/email_actions.dart';
 
 class OrderDetailScreen extends ConsumerWidget {
   final int orderId;
@@ -170,6 +171,13 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
                       child: ListTile(
                         leading: const ThinIcon(tabler.FileTypePdf.new),
                         title: Text(s.sharePdf),
+                        contentPadding: EdgeInsets.zero,
+                      )),
+                  PopupMenuItem(
+                      value: 'email',
+                      child: ListTile(
+                        leading: const ThinIcon(tabler.Mail.new),
+                        title: Text(s.emailInvoice),
                         contentPadding: EdgeInsets.zero,
                       )),
                   PopupMenuItem(
@@ -526,6 +534,22 @@ class _OrderDetailBodyState extends ConsumerState<_OrderDetailBody> {
         final result = await SharePlus.instance.share(ShareParams(
             files: [XFile(file.path)], sharePositionOrigin: origin));
         if (context.mounted) confirmShared(context, result);
+        break;
+
+      case 'email':
+        await emailOrderInvoice(
+          context,
+          ref,
+          order,
+          returns: _returnsOf(order),
+          originalOrderNumber: originalNumber,
+          shareOrigin: origin,
+          pdf: () => _receipt(context, order,
+              shopName: shopName,
+              currencySymbol: currencySymbol,
+              taxRate: taxRate,
+              originalOrderNumber: originalNumber),
+        );
         break;
 
       case 'download_pdf':

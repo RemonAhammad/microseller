@@ -17,6 +17,11 @@ import '../../../shared/widgets/app_button.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
 import '../../../shared/widgets/section_help.dart';
+import '../../../shared/widgets/email_actions.dart';
+import '../../../shared/widgets/loading_overlay.dart';
+import '../../../data/services/isar_service.dart';
+import '../../../data/services/pdf_service.dart';
+import '../../settings/providers/settings_provider.dart';
 
 class CreateReturnScreen extends ConsumerStatefulWidget {
   final Order originalOrder;
@@ -137,7 +142,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
     final returnItems = _returnItems;
     setState(() => _isLoading = true);
     try {
-      await ref.read(orderProvider.notifier).createReturnOrder(
+      final returnId = await ref.read(orderProvider.notifier).createReturnOrder(
             originalOrder: widget.originalOrder,
             returnItems: returnItems,
             reason: _reason,
@@ -148,6 +153,8 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(AppStrings.of(context).tr('returnRequestSubmitted'))),
         );
+        await _emailIfAsked(returnId);
+        if (!mounted) return;
         context.pop(true);
       }
     } catch (e) {
@@ -160,6 +167,34 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  /// Settings → Email the invoice after saving: the return's PDF to the
+  /// customer's email, when they have one.
+  Future<void> _emailIfAsked(int returnId) async {
+    final settings = ref.read(settingsProvider.notifier);
+    if (!settings.emailInvoiceAfterSave || returnId <= 0) return;
+    final isar = await ref.read(isarProvider.future);
+    final ret = await isar.orders.get(returnId);
+    if (ret == null || !mounted) return;
+    final customer = await customerOfOrder(ref, ret);
+    if (customer == null || !customer.hasEmail || !mounted) return;
+    final original = widget.originalOrder.orderNumber;
+    await emailOrderInvoice(
+      context,
+      ref,
+      ret,
+      customer: customer,
+      originalOrderNumber: original,
+      pdf: () => runWithProgress(
+        context,
+        () => PdfService().generateOrderReceipt(ret,
+            shopName: settings.shopName,
+            currencySymbol: settings.currencySymbol,
+            taxRate: settings.taxRate,
+            originalOrderNumber: original),
+      ),
+    );
   }
 
   TextStyle _sectionLabel(ColorScheme cs) =>

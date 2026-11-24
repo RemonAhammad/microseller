@@ -29,6 +29,7 @@ class Settings extends _$Settings {
   static const _keySidebarPosition = 'sidebarPosition';
   static const _keyHiddenSidebarItems = 'hiddenSidebarItems';
   static const _keyAutoBackup = 'autoBackup';
+  static const _keyEmailInvoiceAfterSave = 'emailInvoiceAfterSave';
   static const _keySecurityFingerprint = 'securityFingerprintEnabled';
   static const _keySecurityPin = 'securityPinEnabled';
 
@@ -109,6 +110,7 @@ class Settings extends _$Settings {
       'sidebarPosition': sidebarPositionLeft,
       'hiddenSidebarItems': const <String>[],
       'autoBackup': false,
+      'emailInvoiceAfterSave': false,
       'securityFingerprintEnabled': true,
       'securityPinEnabled': true,
       'autoBackupError': null,
@@ -190,6 +192,7 @@ class Settings extends _$Settings {
               : sidebarPositionLeft,
       'hiddenSidebarItems': hidden,
       'autoBackup': flag(_keyAutoBackup, false),
+      'emailInvoiceAfterSave': flag(_keyEmailInvoiceAfterSave, false),
       'securityFingerprintEnabled': flag(_keySecurityFingerprint, true),
       'securityPinEnabled': flag(_keySecurityPin, true),
       'autoBackupError': autoBackupError is String ? autoBackupError : null,
@@ -344,6 +347,11 @@ class Settings extends _$Settings {
   List<String> get hiddenSidebarItems =>
       List<String>.from(state['hiddenSidebarItems'] as List? ?? const []);
   bool get autoBackup => state['autoBackup'] as bool? ?? false;
+
+  /// Off by default: open the mail app with the invoice after an order or
+  /// return is saved, when the customer has an email.
+  bool get emailInvoiceAfterSave =>
+      state['emailInvoiceAfterSave'] as bool? ?? false;
   bool get securityFingerprintEnabled =>
       state['securityFingerprintEnabled'] as bool? ?? true;
   bool get securityPinEnabled =>
@@ -390,6 +398,12 @@ class Settings extends _$Settings {
     state = {...state, 'autoBackup': enabled};
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyAutoBackup, enabled);
+  }
+
+  Future<void> updateEmailInvoiceAfterSave(bool enabled) async {
+    state = {...state, 'emailInvoiceAfterSave': enabled};
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyEmailInvoiceAfterSave, enabled);
   }
 
   Future<void> updateSecurityFingerprintEnabled(bool enabled) async {
@@ -440,6 +454,8 @@ class Settings extends _$Settings {
       'hiddenSidebarItems': List<String>.from(
           settings['hiddenSidebarItems'] as List? ?? const []),
       'autoBackup': settings['autoBackup'] as bool? ?? false,
+      'emailInvoiceAfterSave':
+          settings['emailInvoiceAfterSave'] as bool? ?? false,
       'securityFingerprintEnabled':
           settings['securityFingerprintEnabled'] as bool? ?? true,
       'securityPinEnabled': settings['securityPinEnabled'] as bool? ?? true,
@@ -518,6 +534,11 @@ class Settings extends _$Settings {
     if (autoBackup is bool) {
       changes['autoBackup'] = autoBackup;
       writes.add(prefs.setBool(_keyAutoBackup, autoBackup));
+    }
+    final emailAfterSave = data['emailInvoiceAfterSave'];
+    if (emailAfterSave is bool) {
+      changes['emailInvoiceAfterSave'] = emailAfterSave;
+      writes.add(prefs.setBool(_keyEmailInvoiceAfterSave, emailAfterSave));
     }
     final secFp = data['securityFingerprintEnabled'];
     if (secFp is bool) {

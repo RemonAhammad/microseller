@@ -28,6 +28,8 @@ import '../../../settings/providers/settings_provider.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../../core/constants/app_icons.dart';
 import '../../../../shared/widgets/action_feedback.dart';
+import '../../../../shared/widgets/email_actions.dart';
+import '../../../../data/services/mail_service.dart' show MailAttachment;
 
 String buildDueReminderText(
   BuildContext context,
@@ -79,6 +81,23 @@ Future<void> sendDueReminder(
   final text = buildDueReminderText(context, customer, orderDues, total,
       shopName: settings.shopName, shopPhone: settings.shopPhone);
 
+  // With a saved email, ask which way; without one, WhatsApp as before.
+  if (customer.hasEmail) {
+    final choice = await showSendChoice(context, title: s.sendReminder, options: [
+      (tabler.BrandWhatsapp.new, s.shareViaWhatsApp),
+      (tabler.Mail.new, s.emailReminder),
+    ]);
+    if (choice == null || !context.mounted) return;
+    if (choice == 1) {
+      await sendByEmail(context, ref,
+          to: customer.email.trim(),
+          subject: s.emailSubjectReminder(settings.shopName),
+          body: text,
+          shareOrigin: shareOrigin);
+      return;
+    }
+  }
+
   final number = whatsAppNumber(customer.phone);
   if (number != null) {
     final uri = Uri.parse(
@@ -103,6 +122,19 @@ Future<void> shareCustomerStatement(
 }) async {
   final s = AppStrings.of(context);
   final settings = ref.read(settingsProvider.notifier);
+
+  // With a saved email, ask which way; without one, Share as before.
+  var email = false;
+  if (customer.hasEmail) {
+    final choice = await showSendChoice(context,
+        title: s.sendStatement,
+        options: [
+          (tabler.Share.new, s.sharePdf),
+          (tabler.Mail.new, s.emailStatement),
+        ]);
+    if (choice == null || !context.mounted) return;
+    email = choice == 1;
+  }
   // Read before any await: the task below must not touch `ref`.
   final isarFuture = ref.read(isarProvider.future);
   final direction = Directionality.of(context);
@@ -122,6 +154,7 @@ Future<void> shareCustomerStatement(
 
   // Where it failed, so the log and the message can say.
   var stage = 'load';
+  var closing = 0.0;
   try {
     final file = await runWithProgress(context, () async {
       final isar = await isarFuture;
@@ -140,6 +173,7 @@ Future<void> shareCustomerStatement(
       stage = 'pdf';
       final service = StatementService();
       final rows = service.buildRows(orders, payments, labels: labels);
+      if (rows.isNotEmpty) closing = rows.last.balance;
       final bytes = await service.generateStatementPdf(
         customer: customer,
         rows: rows,
@@ -156,6 +190,27 @@ Future<void> shareCustomerStatement(
       return file;
     });
     stage = 'share';
+    if (email) {
+      if (!context.mounted) return;
+      final body = StringBuffer()
+        ..writeln(s.reminderGreeting(customer.name))
+        ..writeln()
+        ..writeln(s.emailStatementIntro)
+        ..writeln()
+        ..writeln('${s.closingBalance}: ${CurrencyFormatter.format(closing)}')
+        ..writeln()
+        ..writeln(s.emailThanks)
+        ..writeln(settings.shopName);
+      if (settings.shopPhone.isNotEmpty) body.writeln(settings.shopPhone);
+      await sendByEmail(context, ref,
+          to: customer.email.trim(),
+          subject: s.emailSubjectStatement(settings.shopName),
+          body: body.toString().trimRight(),
+          attachment: MailAttachment(
+              await file.readAsBytes(), statementFileName(customer)),
+          shareOrigin: shareOrigin);
+      return;
+    }
     final result = await SharePlus.instance.share(ShareParams(
         files: [XFile(file.path, mimeType: 'application/pdf')],
         sharePositionOrigin: shareOrigin));

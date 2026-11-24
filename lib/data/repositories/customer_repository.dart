@@ -24,6 +24,8 @@ class CustomerRepository {
       .or()
 
       .phoneContains(NumberInput.toAsciiDigits(query))
+      .or()
+      .emailContains(query.trim(), caseSensitive: false)
       .findAll();
 
   Future<void> save(Customer customer) async {
