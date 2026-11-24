@@ -926,6 +926,7 @@ const translationsTh = <String, String>{
   'helpCashRegisterDues': 'เงินสดที่เก็บจากสมุดลูกหนี้เพิ่มเข้าลิ้นชักที่เปิดอยู่ได้',
   'helpCashRegisterExpenses': 'ถ้าเงินที่ออกเป็นต้นทุนของร้าน ให้บันทึกเป็นค่าใช้จ่ายด้วย',
   'helpCategoriesWhat': 'กลุ่มของสินค้า เช่น เสื้อผ้า หรือขนม',
+  'categoryUsedByProducts': 'มีสินค้า {count} รายการใช้หมวดหมู่นี้ จะยังคงอยู่จนกว่าคุณจะแก้ไข',
   'helpCategoriesWhen': 'สร้างหมวดหมู่ก่อน แล้วเลือกหนึ่งหมวดให้สินค้าแต่ละชิ้น',
   'helpCategoriesProducts': 'กรองสินค้าตามหมวดหมู่ได้',
   'helpCategoriesReports': 'รายงานแสดงยอดขายแยกตามหมวดหมู่',

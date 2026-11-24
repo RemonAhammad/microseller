@@ -925,6 +925,7 @@ const translationsEs = <String, String>{
   'helpCashRegisterDues': 'El efectivo cobrado en el Libro de deudas se puede sumar a la caja abierta.',
   'helpCashRegisterExpenses': 'Si el efectivo que salió fue un gasto del negocio, agrégalo también en Gastos.',
   'helpCategoriesWhat': 'Grupos para tus productos, como Ropa o Snacks.',
+  'categoryUsedByProducts': '{count} productos usan esta categoría. La conservan hasta que los edites.',
   'helpCategoriesWhen': 'Crea primero tus categorías y luego elige una para cada producto.',
   'helpCategoriesProducts': 'Los productos se pueden filtrar por categoría.',
   'helpCategoriesReports': 'Los informes muestran tus ventas por categoría.',

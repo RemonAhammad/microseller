@@ -926,6 +926,7 @@ const translationsPt = <String, String>{
   'helpCashRegisterDues': 'O dinheiro recebido no Caderno de fiado pode ser somado ao caixa aberto.',
   'helpCashRegisterExpenses': 'Se a saída de dinheiro foi um gasto do negócio, lance também como despesa.',
   'helpCategoriesWhat': 'Grupos para seus produtos, como Roupas ou Lanches.',
+  'categoryUsedByProducts': '{count} produtos usam esta categoria. Eles a mantêm até você editá-los.',
   'helpCategoriesWhen': 'Crie primeiro as categorias e depois escolha uma para cada produto.',
   'helpCategoriesProducts': 'Dá para filtrar os produtos por categoria.',
   'helpCategoriesReports': 'Os relatórios mostram suas vendas por categoria.',

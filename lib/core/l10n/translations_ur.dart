@@ -926,6 +926,7 @@ const translationsUr = <String, String>{
   'helpCashRegisterDues': 'ادھار کھاتے سے وصول کی گئی نقدی کھلے رجسٹر میں شامل کی جا سکتی ہے۔',
   'helpCashRegisterExpenses': 'اگر نکلنے والی نقدی کاروباری خرچ تھی تو اسے اخراجات میں بھی شامل کریں۔',
   'helpCategoriesWhat': 'آپ کی پروڈکٹس کے گروپ، جیسے کپڑے یا اسنیکس۔',
+  'categoryUsedByProducts': '{count} مصنوعات یہ زمرہ استعمال کرتی ہیں۔ جب تک آپ ترمیم نہ کریں یہ برقرار رہے گا۔',
   'helpCategoriesWhen': 'پہلے زمرے بنائیں، پھر ہر پروڈکٹ کے لیے ایک چنیں۔',
   'helpCategoriesProducts': 'پروڈکٹس کو زمرے کے لحاظ سے چھانٹا جا سکتا ہے۔',
   'helpCategoriesReports': 'رپورٹس آپ کی فروخت زمروں کے لحاظ سے دکھاتی ہیں۔',

@@ -926,6 +926,7 @@ const translationsFr = <String, String>{
   'helpCashRegisterDues': 'L\'argent encaissé dans le Carnet de dettes peut être ajouté à la caisse ouverte.',
   'helpCashRegisterExpenses': 'Si une sortie d\'argent était un coût de l\'activité, ajoutez-la aussi en dépense.',
   'helpCategoriesWhat': 'Des groupes pour vos produits, comme Vêtements ou Snacks.',
+  'categoryUsedByProducts': '{count} produits utilisent cette catégorie. Ils la gardent jusqu\'à ce que vous les modifiiez.',
   'helpCategoriesWhen': 'Créez d\'abord vos catégories, puis choisissez-en une pour chaque produit.',
   'helpCategoriesProducts': 'Les produits peuvent être filtrés par catégorie.',
   'helpCategoriesReports': 'Les rapports montrent vos ventes par catégorie.',

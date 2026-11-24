@@ -926,6 +926,7 @@ const translationsId = <String, String>{
   'helpCashRegisterDues': 'Uang tunai yang ditagih di Buku Utang bisa ditambahkan ke kasir yang sedang buka.',
   'helpCashRegisterExpenses': 'Kalau uang keluar itu biaya usaha, catat juga sebagai pengeluaran.',
   'helpCategoriesWhat': 'Kelompok untuk produk Anda, misalnya Pakaian atau Camilan.',
+  'categoryUsedByProducts': '{count} produk memakai kategori ini. Kategori tetap ada sampai Anda mengeditnya.',
   'helpCategoriesWhen': 'Buat kategori dulu, lalu pilih satu untuk setiap produk.',
   'helpCategoriesProducts': 'Produk bisa disaring menurut kategori.',
   'helpCategoriesReports': 'Laporan menampilkan penjualan Anda per kategori.',

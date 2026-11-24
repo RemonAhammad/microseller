@@ -925,6 +925,7 @@ const translationsAr = <String, String>{
   'helpCashRegisterDues': 'النقد المحصّل من دفتر الديون يمكن إضافته إلى الصندوق المفتوح.',
   'helpCashRegisterExpenses': 'إذا كان النقد الخارج مصروفًا للتجارة، سجّله في المصروفات أيضًا.',
   'helpCategoriesWhat': 'مجموعات لمنتجاتك، مثل الملابس أو الوجبات الخفيفة.',
+  'categoryUsedByProducts': '{count} من المنتجات تستخدم هذه الفئة. ستبقى عليها حتى تعدّلها.',
   'helpCategoriesWhen': 'أنشئ فئاتك أولًا، ثم اختر واحدة لكل منتج.',
   'helpCategoriesProducts': 'يمكن تصفية المنتجات حسب الفئة.',
   'helpCategoriesReports': 'التقارير تعرض مبيعاتك حسب الفئة.',

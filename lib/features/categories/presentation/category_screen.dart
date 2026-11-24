@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isar_community/isar.dart';
 import '../../../data/models/category.dart';
+import '../../../data/models/product.dart';
+import '../../../data/services/isar_service.dart';
 import '../providers/category_provider.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/extensions/context_extensions.dart';
@@ -156,38 +159,8 @@ class _CategoryTile extends StatelessWidget {
         child: const ThinIcon(tabler.Trash.new,
             color: Colors.white, size: 26),
       ),
-      confirmDismiss: (_) async {
-        final s = AppStrings.of(context);
-        return await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text(s.deleteCategory),
-            content: Text(
-                '${s.delete} "${category.name}"?'),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: Text(s.cancel)),
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child:
-                    Text(s.delete, style: const TextStyle(color: Colors.red)),
-              ),
-            ],
-          ),
-        );
-      },
-      onDismissed: (_) async {
-        final s = AppStrings.of(context);
-        final trashId =
-            await ref.read(categoryProvider.notifier).deleteCategory(category.id);
-        if (trashId != null && context.mounted) {
-          context.showUndoSnackBar(
-            '${s.itemDeleted}: ${category.name}',
-            onUndo: () => ref.read(trashProvider.notifier).restore(trashId),
-          );
-        }
-      },
+      confirmDismiss: (_) => _confirmDelete(context),
+      onDismissed: (_) => _delete(context),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
@@ -234,10 +207,69 @@ class _CategoryTile extends StatelessWidget {
               icon: const ThinIcon(tabler.Pencil.new, size: 20),
               onPressed: () => _showEditDialog(context),
             ),
+            IconButton(
+              key: ValueKey('deleteCategory${category.id}'),
+              tooltip: AppStrings.of(context).delete,
+              icon: ThinIcon(tabler.Trash.new,
+                  size: 20, color: theme.colorScheme.error),
+              onPressed: () async {
+                if (await _confirmDelete(context) && context.mounted) {
+                  await _delete(context);
+                }
+              },
+            ),
           ],
         ),
       ),
     );
+  }
+
+  /// Asks before deleting; says how many products still use the category.
+  Future<bool> _confirmDelete(BuildContext context) async {
+    final s = AppStrings.of(context);
+    final isar = await ref.read(isarProvider.future);
+    final used = await isar.products
+        .filter()
+        .isActiveEqualTo(true)
+        .categoryEqualTo(category.name)
+        .count();
+    if (!context.mounted) return false;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(s.deleteCategory),
+        content: SingleChildScrollView(
+          child: Text([
+            '${s.delete} "${category.name}"?',
+            if (used > 0)
+              s.tr('categoryUsedByProducts').replaceAll('{count}', '$used'),
+          ].join('\n\n')),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(s.cancel)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(s.delete,
+                style: TextStyle(color: Theme.of(ctx).colorScheme.error)),
+          ),
+        ],
+      ),
+    );
+    return ok ?? false;
+  }
+
+  Future<void> _delete(BuildContext context) async {
+    final s = AppStrings.of(context);
+    final trashId =
+        await ref.read(categoryProvider.notifier).deleteCategory(category.id);
+    if (trashId != null && context.mounted) {
+      context.showUndoSnackBar(
+        '${s.itemDeleted}: ${category.name}',
+        onUndo: () => ref.read(trashProvider.notifier).restore(trashId),
+      );
+    }
   }
 
   void _showEditDialog(BuildContext context) {

@@ -926,6 +926,7 @@ const translationsBn = <String, String>{
   'helpCashRegisterDues': 'বাকির খাতায় আদায় করা নগদ খোলা রেজিস্টারে যোগ করা যায়।',
   'helpCashRegisterExpenses': 'নগদ বের হওয়া ব্যবসার খরচ হলে সেটা খরচেও লিখুন।',
   'helpCategoriesWhat': 'পণ্যের গ্রুপ, যেমন জামাকাপড় বা স্ন্যাকস।',
+  'categoryUsedByProducts': '{count}টি পণ্য এই ক্যাটাগরি ব্যবহার করছে। আপনি সম্পাদনা না করা পর্যন্ত সেগুলোতে এটি থাকবে।',
   'helpCategoriesWhen': 'আগে ক্যাটাগরি বানান, তারপর প্রতিটি পণ্যে একটি বেছে নিন।',
   'helpCategoriesProducts': 'পণ্য ক্যাটাগরি দিয়ে ফিল্টার করা যায়।',
   'helpCategoriesReports': 'রিপোর্টে ক্যাটাগরি অনুযায়ী বিক্রি দেখা যায়।',

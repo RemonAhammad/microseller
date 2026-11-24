@@ -926,6 +926,7 @@ const translationsMs = <String, String>{
   'helpCashRegisterDues': 'Tunai yang dikutip dalam Buku Hutang boleh ditambah ke daftar yang dibuka.',
   'helpCashRegisterExpenses': 'Jika tunai keluar itu kos perniagaan, tambah juga sebagai perbelanjaan.',
   'helpCategoriesWhat': 'Kumpulan untuk produk anda, seperti Pakaian atau Snek.',
+  'categoryUsedByProducts': '{count} produk menggunakan kategori ini. Ia kekal sehingga anda menyuntingnya.',
   'helpCategoriesWhen': 'Cipta kategori dahulu, kemudian pilih satu untuk setiap produk.',
   'helpCategoriesProducts': 'Produk boleh ditapis mengikut kategori.',
   'helpCategoriesReports': 'Laporan menunjukkan jualan anda mengikut kategori.',

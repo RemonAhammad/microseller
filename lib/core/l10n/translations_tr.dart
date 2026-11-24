@@ -926,6 +926,7 @@ const translationsTr = <String, String>{
   'helpCashRegisterDues': 'Veresiye Defteri\'nde tahsil edilen nakit açık kasaya eklenebilir.',
   'helpCashRegisterExpenses': 'Çıkan nakit işle ilgili bir masrafsa onu gider olarak da ekleyin.',
   'helpCategoriesWhat': 'Ürünleriniz için gruplar, örneğin Giyim ya da Atıştırmalık.',
+  'categoryUsedByProducts': '{count} ürün bu kategoriyi kullanıyor. Siz düzenleyene kadar onu korurlar.',
   'helpCategoriesWhen': 'Önce kategorilerinizi oluşturun, sonra her ürün için birini seçin.',
   'helpCategoriesProducts': 'Ürünler kategoriye göre süzülebilir.',
   'helpCategoriesReports': 'Raporlar satışlarınızı kategoriye göre gösterir.',

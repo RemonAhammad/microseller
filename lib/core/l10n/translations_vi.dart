@@ -926,6 +926,7 @@ const translationsVi = <String, String>{
   'helpCashRegisterDues': 'Tiền mặt thu từ Sổ công nợ có thể cộng vào máy tính tiền đang mở.',
   'helpCashRegisterExpenses': 'Nếu tiền ra là chi phí kinh doanh, hãy thêm cả vào Chi phí.',
   'helpCategoriesWhat': 'Các nhóm cho sản phẩm, như Quần áo hay Đồ ăn vặt.',
+  'categoryUsedByProducts': '{count} sản phẩm đang dùng danh mục này. Chúng giữ danh mục cho đến khi bạn sửa.',
   'helpCategoriesWhen': 'Tạo danh mục trước, rồi chọn một danh mục cho từng sản phẩm.',
   'helpCategoriesProducts': 'Có thể lọc sản phẩm theo danh mục.',
   'helpCategoriesReports': 'Báo cáo cho thấy doanh số theo danh mục.',

@@ -926,6 +926,7 @@ const translationsEn = <String, String>{
   'helpCashRegisterDues': 'Cash collected in the Due Book can be added to the open register.',
   'helpCashRegisterExpenses': 'If cash out was a business cost, add it as an expense too.',
   'helpCategoriesWhat': 'Groups for your products, such as Clothes or Snacks.',
+  'categoryUsedByProducts': '{count} products use this category. They keep it until you edit them.',
   'helpCategoriesWhen': 'Create your categories first, then pick one for each product.',
   'helpCategoriesProducts': 'Products can be filtered by category.',
   'helpCategoriesReports': 'Reports show your sales by category.',
