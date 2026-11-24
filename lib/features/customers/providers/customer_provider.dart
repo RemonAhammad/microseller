@@ -61,7 +61,7 @@ class CustomerNotifier extends _$CustomerNotifier {
           payload: customer.toJson(),
           sidecar: {'unlinkedOrderIds': orders.map((o) => o.id).toList()},
           label: customer.name,
-          sublabel: customer.phone,
+          sublabel: customer.phone.isNotEmpty ? customer.phone : customer.email,
         );
         await isar.customers.delete(id);
       });

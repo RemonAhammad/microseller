@@ -153,9 +153,10 @@ class _SupplierFormScreenState extends ConsumerState<SupplierFormScreen> {
               ),
               const SizedBox(height: 12),
               AppTextField(
-                label: s.tr('email'),
+                label: s.email,
                 controller: _emailCtrl,
                 keyboardType: TextInputType.emailAddress,
+                validator: (v) => Validators.email(v, s.invalidEmail),
                 textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: 12),

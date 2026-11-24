@@ -617,13 +617,15 @@ class OrderNotifier extends _$OrderNotifier {
     }
   }
 
-  Future<void> createReturnOrder({
+  /// Returns the new return order's id.
+  Future<int> createReturnOrder({
     required Order originalOrder,
     required List<OrderItem> returnItems,
     required ReturnReason reason,
     required double refundAmount,
     String returnNotes = '',
   }) async {
+    var newId = 0;
     state = await AsyncValue.guard(() async {
       final isar = await ref.read(isarProvider.future);
       await isar.writeTxn(() async {
@@ -670,16 +672,18 @@ class OrderNotifier extends _$OrderNotifier {
           updatedAt: DateTime.now(),
         );
 
-        await isar.orders.putAll([
+        final ids = await isar.orders.putAll([
           returnOrder,
           original.copyWith(
             returnStatus: ReturnStatus.requested,
             updatedAt: DateTime.now(),
           ),
         ]);
+        newId = ids.first;
       });
     });
     if (state.hasError) throw state.error!;
+    return newId;
   }
 
   /// What the customer owes, from their orders as written in this txn. The

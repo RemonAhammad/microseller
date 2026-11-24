@@ -1,3 +1,4 @@
+import '../../data/services/mail_service.dart' show isEmailAddress;
 import 'number_input.dart';
 
 class Validators {
@@ -68,6 +69,14 @@ class Validators {
       return 'Phone number can only contain digits, +, -, spaces';
     }
     return null;
+  }
+
+  /// Optional email: empty is always valid; otherwise it must look like an
+  /// address. [message] is the caller's translated `invalidEmail`.
+  static String? email(String? value,
+      [String message = 'Please enter a valid email']) {
+    if (value == null || value.trim().isEmpty) return null;
+    return isEmailAddress(value) ? null : message;
   }
 
   static String? sku(String? value) {

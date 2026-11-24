@@ -88,7 +88,8 @@ class _CustomerListScreenState extends ConsumerState<CustomerListScreen> {
               : allCustomers
                   .where((c) =>
                       c.name.toLowerCase().contains(_query) ||
-                      NumberInput.phoneMatches(c.phone, _query))
+                      NumberInput.phoneMatches(c.phone, _query) ||
+                      c.email.toLowerCase().contains(_query))
                   .toList();
 
           if (customers.isEmpty) {

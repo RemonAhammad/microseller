@@ -50,6 +50,8 @@ import '../../../shared/widgets/scanner_camera.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter_thermal_printer/utils/printer.dart' as pos;
 import '../../../shared/widgets/section_help.dart';
+import '../../../core/utils/validators.dart';
+import '../../../shared/widgets/email_actions.dart';
 
 class OrderFormScreen extends ConsumerStatefulWidget {
   final Order? order;
@@ -941,6 +943,16 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
       }
     }
 
+    // Settings → Email the invoice after saving: straight to the mail app
+    // when the customer has an email (the sheet still opens after it).
+    final customer = _selectedCustomer;
+    if (settings.emailInvoiceAfterSave && customer != null && customer.hasEmail) {
+      await emailOrderInvoice(context, ref, order,
+          customer: customer,
+          pdf: () => runWithProgress(context, receiptBytes));
+      if (!mounted) return;
+    }
+
     await AppBottomSheet.show<void>(
       context,
       title: '${s.orderCreated}  ·  ${order.orderNumber}',
@@ -966,6 +978,20 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
                 return result.status == ShareResultStatus.success;
               });
             },
+          ),
+          const SizedBox(height: 8),
+          _InvoiceActionTile(
+            icon: tabler.Mail.new,
+            label: s.emailInvoice,
+            color: Colors.deepPurple,
+            onTap: (origin) => emailOrderInvoice(
+              context,
+              ref,
+              order,
+              // Read afresh: an address typed and saved on a first tap counts.
+              shareOrigin: origin,
+              pdf: () => runWithProgress(context, receiptBytes),
+            ),
           ),
           const SizedBox(height: 8),
           _InvoiceActionTile(
@@ -3260,14 +3286,17 @@ class _CustomerPickerSheetState extends State<_CustomerPickerSheet> {
   bool _showForm = false;
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
   bool _saving = false;
+  String? _emailError;
 
   @override
   void dispose() {
     _searchCtrl.dispose();
     _nameCtrl.dispose();
     _phoneCtrl.dispose();
+    _emailCtrl.dispose();
     _addressCtrl.dispose();
     super.dispose();
   }
@@ -3286,7 +3315,8 @@ class _CustomerPickerSheetState extends State<_CustomerPickerSheet> {
           : [
               for (var i = 0; i < customers.length; i++)
                 if (_lowerNames[i].contains(query) ||
-                    NumberInput.phoneMatches(customers[i].phone, query))
+                    NumberInput.phoneMatches(customers[i].phone, query) ||
+                    customers[i].email.toLowerCase().contains(query))
                   customers[i],
             ];
     });
@@ -3300,6 +3330,8 @@ class _CustomerPickerSheetState extends State<_CustomerPickerSheet> {
       _showForm = true;
       if (isPhone) {
         _phoneCtrl.text = digits;
+      } else if (q.contains('@')) {
+        _emailCtrl.text = q;
       } else if (q.isNotEmpty) {
         _nameCtrl.text = q;
       }
@@ -3312,6 +3344,15 @@ class _CustomerPickerSheetState extends State<_CustomerPickerSheet> {
 
     if (name.isEmpty && phone.isEmpty) return;
 
+    // Trimmed as the customer form saves it; empty is always fine.
+    final email = _emailCtrl.text.trim();
+    final emailError =
+        Validators.email(email, AppStrings.of(context).invalidEmail);
+    if (emailError != null) {
+      setState(() => _emailError = emailError);
+      return;
+    }
+
     final customerName = name.isNotEmpty ? name : phone;
 
     setState(() => _saving = true);
@@ -3320,6 +3361,7 @@ class _CustomerPickerSheetState extends State<_CustomerPickerSheet> {
       final customer = Customer(
         name: customerName,
         phone: phone,
+        email: email,
         address: _addressCtrl.text.trim(),
         createdAt: DateTime.now(),
       );
@@ -3417,6 +3459,24 @@ class _CustomerPickerSheetState extends State<_CustomerPickerSheet> {
                     decoration: InputDecoration(
                       labelText: s.phone,
                       prefixIcon: const ThinIcon(tabler.Phone.new, size: 20),
+                      isDense: true,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _emailCtrl,
+                    keyboardType: TextInputType.emailAddress,
+                    autocorrect: false,
+                    onChanged: (_) {
+                      if (_emailError != null) {
+                        setState(() => _emailError = null);
+                      }
+                    },
+                    decoration: InputDecoration(
+                      labelText: s.email,
+                      errorText: _emailError,
+                      errorMaxLines: 3,
+                      prefixIcon: const ThinIcon(tabler.Mail.new, size: 20),
                       isDense: true,
                     ),
                   ),

@@ -22,6 +22,7 @@ import '../../orders/presentation/widgets/order_card.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
 import '../../../shared/widgets/section_help.dart';
+import '../../../shared/widgets/email_actions.dart';
 
 class CustomerDetailScreen extends ConsumerWidget {
   final int customerId;
@@ -141,6 +142,8 @@ class CustomerDetailScreen extends ConsumerWidget {
                                       .withOpacity(0.6),
                                 ),
                               ),
+                            if (customer.hasEmail)
+                              _EmailLink(email: customer.email.trim()),
                           ],
                         ),
                       ),
@@ -730,6 +733,37 @@ class _PurchaseHistoryChart extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The customer's email, left to right in every language, wrapping at its
+/// `@` and dots on a narrow screen; a tap writes to it (or offers Copy email).
+class _EmailLink extends ConsumerWidget {
+  const _EmailLink({required this.email});
+
+  final String email;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    return Tooltip(
+      message: AppStrings.of(context).emailCustomer,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => writeEmail(context, ref, email),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Text(
+            breakableEmail(email),
+            textAlign: TextAlign.center,
+            textDirection: TextDirection.ltr,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.primary,
+            ),
+          ),
+        ),
       ),
     );
   }

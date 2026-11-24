@@ -29,6 +29,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
   final _notesCtrl = TextEditingController();
   CustomerTag _tag = CustomerTag.newCustomer;
@@ -57,6 +58,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
   void _populate(Customer c) {
     _nameCtrl.text = c.name;
     _phoneCtrl.text = c.phone;
+    _emailCtrl.text = c.email;
     _addressCtrl.text = c.address;
     _notesCtrl.text = c.notes;
     setState(() => _tag = c.tag);
@@ -66,6 +68,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
   void dispose() {
     _nameCtrl.dispose();
     _phoneCtrl.dispose();
+    _emailCtrl.dispose();
     _addressCtrl.dispose();
     _notesCtrl.dispose();
     super.dispose();
@@ -81,6 +84,8 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
         id: existing?.id ?? Isar.autoIncrement,
         name: _nameCtrl.text.trim(),
         phone: _phoneCtrl.text.trim(),
+        // Built from the fields, not copyWith: without this an edit wipes it.
+        email: _emailCtrl.text.trim(),
         address: _addressCtrl.text.trim(),
         notes: _notesCtrl.text.trim(),
         tag: _tag,
@@ -155,6 +160,15 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                 validator: Validators.phone,
                 textInputAction: TextInputAction.next,
                 prefixIcon: const ThinIcon(tabler.Phone.new),
+              ),
+              const SizedBox(height: 12),
+              AppTextField(
+                label: s.email,
+                controller: _emailCtrl,
+                keyboardType: TextInputType.emailAddress,
+                validator: (v) => Validators.email(v, s.invalidEmail),
+                textInputAction: TextInputAction.next,
+                prefixIcon: const ThinIcon(tabler.Mail.new),
               ),
               const SizedBox(height: 12),
               AppTextField(

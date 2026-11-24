@@ -12,6 +12,7 @@ class Customer {
     this.id = Isar.autoIncrement,
     required this.name,
     this.phone = '',
+    this.email = '',
     this.address = '',
     this.notes = '',
     this.tag = CustomerTag.newCustomer,
@@ -26,6 +27,9 @@ class Customer {
   @Index(type: IndexType.value)
   String name;
   String phone;
+
+  /// Optional. Older rows, backups and Recycle Bin entries read back as ''.
+  String email;
   String address;
   String notes;
 
@@ -40,10 +44,14 @@ class Customer {
   @ignore
   bool get hasOutstanding => outstandingBalance > 0;
 
+  @ignore
+  bool get hasEmail => email.trim().isNotEmpty;
+
   Customer copyWith({
     Id? id,
     String? name,
     String? phone,
+    String? email,
     String? address,
     String? notes,
     CustomerTag? tag,
@@ -56,6 +64,7 @@ class Customer {
         id: id ?? this.id,
         name: name ?? this.name,
         phone: phone ?? this.phone,
+        email: email ?? this.email,
         address: address ?? this.address,
         notes: notes ?? this.notes,
         tag: tag ?? this.tag,
