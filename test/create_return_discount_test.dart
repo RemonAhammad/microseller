@@ -349,4 +349,15 @@ void main() {
     await toggleDiscount(tester);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('amounts line up at the end of the card', skip: isarSkipReason != null, (tester) async {
+    final (isar, sale) = await seed(tester, lines: [('Egg', 10, 10)], discount: 10, paid: 80);
+    await pumpScreen(tester, isar: isar, screen: CreateReturnScreen(originalOrder: sale));
+    await add(tester, 'Egg', 2);
+    await showCalc(tester);
+    final cardEnd = tester.getRect(calc).right - 12; // the card's padding
+    for (final t in [money(20), '−${money(2)}', '−${money(10)}', money(8)]) {
+      expect(tester.getRect(inCalc(t)).right, moreOrLessEquals(cardEnd, epsilon: 1.5), reason: t);
+    }
+  });
 }

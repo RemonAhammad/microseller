@@ -680,17 +680,23 @@ class _CalcRow extends StatelessWidget {
         fontWeight: bold ? FontWeight.w700 : FontWeight.w400);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Expanded(child: Text(label, style: style)),
-        const SizedBox(width: 12),
-        Flexible(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: AlignmentDirectional.centerEnd,
-            child: Text(amount, style: style, textDirection: TextDirection.ltr),
+      // The amount sits at the end of the row; it gets at most half the
+      // width and shrinks rather than being cut. (A loose Flexible left the
+      // rest of its half empty after it, so amounts stood in the middle.)
+      child: LayoutBuilder(
+        builder: (context, c) => Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(child: Text(label, style: style)),
+          const SizedBox(width: 12),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: c.maxWidth / 2),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerEnd,
+              child: Text(amount, style: style, textDirection: TextDirection.ltr),
+            ),
           ),
-        ),
-      ]),
+        ]),
+      ),
     );
   }
 }
