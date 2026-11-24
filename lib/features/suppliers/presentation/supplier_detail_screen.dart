@@ -446,22 +446,44 @@ class _SupplierProductsSection extends ConsumerWidget {
   }
 }
 
-class _SupplierRestockActivity extends ConsumerWidget {
+class _SupplierRestockActivity extends ConsumerStatefulWidget {
   final int supplierId;
 
   const _SupplierRestockActivity({required this.supplierId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_SupplierRestockActivity> createState() =>
+      _SupplierRestockActivityState();
+}
+
+class _SupplierRestockActivityState
+    extends ConsumerState<_SupplierRestockActivity> {
+  static const _loadMoreAhead = 20;
+  bool _loadMoreScheduled = false;
+
+  /// The notifier can't change during a build, so ask after the frame.
+  void _loadMoreSoon() {
+    if (_loadMoreScheduled) return;
+    _loadMoreScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadMoreScheduled = false;
+      if (mounted) {
+        ref
+            .read(supplierRestockPagesProvider(widget.supplierId).notifier)
+            .loadMore();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final movementsAsync =
-        ref.watch(supplierStockMovementsProvider(supplierId));
+    final s = AppStrings.of(context);
 
-    return movementsAsync.when(
-      data: (movements) {
-
-        final restocks = movements.where((m) => m.qty > 0).toList();
+    return ref.watch(supplierRestockPagesProvider(widget.supplierId)).when(
+      data: (page) {
+        final restocks = page.movements;
         final badge = MediaQuery.textScalerOf(context).scale(36);
 
         return SliverMainAxisGroup(
@@ -485,7 +507,7 @@ class _SupplierRestockActivity extends ConsumerWidget {
                           color: cs.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Text('${restocks.length}',
+                        child: Text('${page.total}',
                             style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -505,7 +527,7 @@ class _SupplierRestockActivity extends ConsumerWidget {
                       ),
                       child: Center(
                         child: Text(
-                          'No restocks from this supplier yet',
+                          s.tr('noRestocksFromSupplier'),
                           style: TextStyle(
                               fontSize: 12,
                               color: cs.onSurface.withValues(alpha: 0.5)),
@@ -516,8 +538,22 @@ class _SupplierRestockActivity extends ConsumerWidget {
               ),
             ),
             SliverList.builder(
-              itemCount: restocks.length,
+              itemCount: restocks.length + (page.hasMore ? 1 : 0),
               itemBuilder: (context, i) {
+                if (page.hasMore && i >= restocks.length - _loadMoreAhead) {
+                  _loadMoreSoon();
+                }
+                if (i == restocks.length) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Center(
+                      child: SizedBox.square(
+                        dimension: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  );
+                }
                 final m = restocks[i];
                 return Container(
                   margin: const EdgeInsets.only(bottom: 6),
@@ -583,7 +619,15 @@ class _SupplierRestockActivity extends ConsumerWidget {
       },
       loading: () => const SliverToBoxAdapter(
           child: Center(child: CircularProgressIndicator())),
-      error: (e, _) => SliverToBoxAdapter(child: Text('$e')),
+      error: (_, _) => SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Center(
+            child: Text(s.errorOccurred,
+                style: TextStyle(color: cs.error, fontSize: 12)),
+          ),
+        ),
+      ),
     );
   }
 }

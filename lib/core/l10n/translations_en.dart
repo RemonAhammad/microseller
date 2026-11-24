@@ -298,6 +298,7 @@ const translationsEn = <String, String>{
   'email': 'Email',
   'productsFromSupplier': 'Products',
   'restockActivity': 'Restock Activity',
+  'noRestocksFromSupplier': 'No restocks from this supplier yet',
   'noRestocksYet': 'No restocks from this supplier yet',
   'payDue': 'Pay Due',
   'recordPaymentToSupplier': 'Record Payment',

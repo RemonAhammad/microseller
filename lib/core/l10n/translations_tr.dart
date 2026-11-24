@@ -298,6 +298,7 @@ const translationsTr = <String, String>{
   'email': 'E-posta',
   'productsFromSupplier': 'Ürünler',
   'restockActivity': 'Yeniden Stoklama Etkinliği',
+  'noRestocksFromSupplier': 'Bu tedarikçiden henüz stok girişi yok',
   'noRestocksYet': 'Bu tedarikçiden henüz yeniden stoklama yapılmadı',
   'payDue': 'Borç Öde',
   'recordPaymentToSupplier': 'Ödeme Kaydet',

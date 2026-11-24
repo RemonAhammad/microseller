@@ -298,6 +298,7 @@ const translationsMs = <String, String>{
   'email': 'Emel',
   'productsFromSupplier': 'Produk',
   'restockActivity': 'Aktiviti Isi Semula',
+  'noRestocksFromSupplier': 'Belum ada stok semula daripada pembekal ini',
   'noRestocksYet': 'Belum ada isi semula dari pembekal ini',
   'payDue': 'Bayar Tertunggak',
   'recordPaymentToSupplier': 'Rekod Pembayaran',

@@ -298,6 +298,7 @@ const translationsVi = <String, String>{
   'email': 'Email',
   'productsFromSupplier': 'Sản phẩm',
   'restockActivity': 'Hoạt động nhập kho',
+  'noRestocksFromSupplier': 'Chưa có lần nhập hàng nào từ nhà cung cấp này',
   'noRestocksYet': 'Chưa có lần nhập kho nào từ nhà cung cấp này',
   'payDue': 'Thanh toán nợ',
   'recordPaymentToSupplier': 'Ghi nhận thanh toán',

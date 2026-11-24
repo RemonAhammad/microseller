@@ -298,6 +298,7 @@ const translationsAr = <String, String>{
   'email': 'البريد الإلكتروني',
   'productsFromSupplier': 'المنتجات',
   'restockActivity': 'نشاط إعادة التخزين',
+  'noRestocksFromSupplier': 'لا توجد عمليات إعادة تخزين من هذا المورد بعد',
   'noRestocksYet': 'لا توجد عمليات إعادة تخزين من هذا المورد بعد',
   'payDue': 'دفع المستحق',
   'recordPaymentToSupplier': 'تسجيل دفعة',

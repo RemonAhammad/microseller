@@ -38,6 +38,9 @@ class StockMovement {
 
   String reason;
 
+  /// Indexed with the date, so a supplier's restock history pages newest
+  /// first without scanning every movement.
+  @Index(composite: [CompositeIndex('createdAt')])
   int supplierId;
 
   @Index()

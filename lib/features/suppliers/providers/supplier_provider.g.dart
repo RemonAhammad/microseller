@@ -237,56 +237,39 @@ final class SupplierProductsFamily extends $Family
   String toString() => r'supplierProductsProvider';
 }
 
-@ProviderFor(supplierStockMovements)
-final supplierStockMovementsProvider = SupplierStockMovementsFamily._();
+@ProviderFor(SupplierRestockPages)
+final supplierRestockPagesProvider = SupplierRestockPagesFamily._();
 
-final class SupplierStockMovementsProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<StockMovement>>,
-          List<StockMovement>,
-          Stream<List<StockMovement>>
-        >
-    with
-        $FutureModifier<List<StockMovement>>,
-        $StreamProvider<List<StockMovement>> {
-  SupplierStockMovementsProvider._({
-    required SupplierStockMovementsFamily super.from,
+final class SupplierRestockPagesProvider
+    extends $StreamNotifierProvider<SupplierRestockPages, SupplierRestockPage> {
+  SupplierRestockPagesProvider._({
+    required SupplierRestockPagesFamily super.from,
     required int super.argument,
   }) : super(
          retry: null,
-         name: r'supplierStockMovementsProvider',
+         name: r'supplierRestockPagesProvider',
          isAutoDispose: true,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$supplierStockMovementsHash();
+  String debugGetCreateSourceHash() => _$supplierRestockPagesHash();
 
   @override
   String toString() {
-    return r'supplierStockMovementsProvider'
+    return r'supplierRestockPagesProvider'
         ''
         '($argument)';
   }
 
   @$internal
   @override
-  $StreamProviderElement<List<StockMovement>> $createElement(
-    $ProviderPointer pointer,
-  ) => $StreamProviderElement(pointer);
-
-  @override
-  Stream<List<StockMovement>> create(Ref ref) {
-    final argument = this.argument as int;
-    return supplierStockMovements(ref, argument);
-  }
+  SupplierRestockPages create() => SupplierRestockPages();
 
   @override
   bool operator ==(Object other) {
-    return other is SupplierStockMovementsProvider &&
-        other.argument == argument;
+    return other is SupplierRestockPagesProvider && other.argument == argument;
   }
 
   @override
@@ -295,25 +278,55 @@ final class SupplierStockMovementsProvider
   }
 }
 
-String _$supplierStockMovementsHash() =>
-    r'a3817f5275b03eef59e4805cff52814d80f4b600';
+String _$supplierRestockPagesHash() =>
+    r'367033393ef344661fcd16c3fc8f5bfb10281c0a';
 
-final class SupplierStockMovementsFamily extends $Family
-    with $FunctionalFamilyOverride<Stream<List<StockMovement>>, int> {
-  SupplierStockMovementsFamily._()
+final class SupplierRestockPagesFamily extends $Family
+    with
+        $ClassFamilyOverride<
+          SupplierRestockPages,
+          AsyncValue<SupplierRestockPage>,
+          SupplierRestockPage,
+          Stream<SupplierRestockPage>,
+          int
+        > {
+  SupplierRestockPagesFamily._()
     : super(
         retry: null,
-        name: r'supplierStockMovementsProvider',
+        name: r'supplierRestockPagesProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
 
-  SupplierStockMovementsProvider call(int supplierId) =>
-      SupplierStockMovementsProvider._(argument: supplierId, from: this);
+  SupplierRestockPagesProvider call(int supplierId) =>
+      SupplierRestockPagesProvider._(argument: supplierId, from: this);
 
   @override
-  String toString() => r'supplierStockMovementsProvider';
+  String toString() => r'supplierRestockPagesProvider';
+}
+
+abstract class _$SupplierRestockPages
+    extends $StreamNotifier<SupplierRestockPage> {
+  late final _$args = ref.$arg as int;
+  int get supplierId => _$args;
+
+  Stream<SupplierRestockPage> build(int supplierId);
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref as $Ref<AsyncValue<SupplierRestockPage>, SupplierRestockPage>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<SupplierRestockPage>, SupplierRestockPage>,
+              AsyncValue<SupplierRestockPage>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, () => build(_$args));
+  }
 }
 
 @ProviderFor(SupplierNotifier)

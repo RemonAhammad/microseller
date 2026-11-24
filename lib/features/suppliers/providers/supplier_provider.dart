@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:isar_community/isar.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/utils/quantity.dart';
@@ -5,6 +7,7 @@ import '../../../data/models/supplier.dart';
 import '../../../data/models/purchase.dart';
 import '../../../data/models/product.dart';
 import '../../../data/models/stock_movement.dart';
+import '../../../data/services/db_worker.dart';
 import '../../../data/services/isar_reload.dart';
 import '../../../data/services/isar_service.dart';
 import '../../../data/services/serial_service.dart';
@@ -47,15 +50,64 @@ Stream<List<Product>> supplierProducts(Ref ref, int supplierId) async* {
   yield* reloadOn(isar.products.watchLazy(), query.findAll);
 }
 
+const kSupplierRestockPageSize = 100;
+
+/// One page of a supplier's restocks (movements with qty > 0), newest first.
+class SupplierRestockPage {
+  const SupplierRestockPage(this.movements,
+      {required this.hasMore, required this.total});
+
+  final List<StockMovement> movements;
+  final bool hasMore;
+
+  /// Every restock of the supplier, not just the loaded ones.
+  final int total;
+}
+
+/// Built from plain values, so it can run on a worker isolate.
+SupplierRestockPage Function(Isar) _supplierRestockPageJob(
+        int supplierId, int limit) =>
+    (db) {
+      QueryBuilder<StockMovement, StockMovement, QAfterFilterCondition>
+          query() => db.stockMovements
+              .where(sort: Sort.desc)
+              .supplierIdEqualToAnyCreatedAt(supplierId)
+              .filter()
+              .qtyGreaterThan(0);
+      final rows = query().limit(limit + 1).findAllSync();
+      final hasMore = rows.length > limit;
+      return SupplierRestockPage(
+        hasMore ? rows.sublist(0, limit) : rows,
+        hasMore: hasMore,
+        total: query().countSync(),
+      );
+    };
+
 @riverpod
-Stream<List<StockMovement>> supplierStockMovements(
-    Ref ref, int supplierId) async* {
-  final isar = await ref.watch(isarProvider.future);
-  final query = isar.stockMovements
-      .filter()
-      .supplierIdEqualTo(supplierId)
-      .sortByCreatedAtDesc();
-  yield* reloadOn(isar.stockMovements.watchLazy(), query.findAll);
+class SupplierRestockPages extends _$SupplierRestockPages {
+  int _limit = kSupplierRestockPageSize;
+  StreamController<void>? _more;
+
+  @override
+  Stream<SupplierRestockPage> build(int supplierId) async* {
+    final isar = await ref.watch(isarProvider.future);
+    final more = StreamController<void>();
+    ref.onDispose(more.close);
+    _more = more;
+    yield* reloadOn(
+      mergeChanges([isar.stockMovements.watchLazy(), more.stream]),
+      () => runDbJob(isar, _supplierRestockPageJob(supplierId, _limit)),
+    );
+  }
+
+  void loadMore() {
+    final page = state.value;
+    if (page == null || !page.hasMore || page.movements.length < _limit) {
+      return;
+    }
+    _limit += kSupplierRestockPageSize;
+    _more?.add(null);
+  }
 }
 
 @Riverpod(keepAlive: true)

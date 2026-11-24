@@ -298,6 +298,7 @@ const translationsId = <String, String>{
   'email': 'Email',
   'productsFromSupplier': 'Produk',
   'restockActivity': 'Aktivitas Isi Ulang',
+  'noRestocksFromSupplier': 'Belum ada restok dari pemasok ini',
   'noRestocksYet': 'Belum ada isi ulang dari pemasok ini',
   'payDue': 'Bayar Tagihan',
   'recordPaymentToSupplier': 'Catat Pembayaran',

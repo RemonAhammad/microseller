@@ -298,6 +298,7 @@ const translationsUr = <String, String>{
   'email': 'ای میل',
   'productsFromSupplier': 'مصنوعات',
   'restockActivity': 'دوبارہ اسٹاک کی سرگرمی',
+  'noRestocksFromSupplier': 'اس سپلائر سے ابھی تک کوئی ری اسٹاک نہیں',
   'noRestocksYet': 'اس سپلائر سے ابھی تک کوئی ری اسٹاک نہیں',
   'payDue': 'واجب الادا ادا کریں',
   'recordPaymentToSupplier': 'ادائیگی ریکارڈ کریں',

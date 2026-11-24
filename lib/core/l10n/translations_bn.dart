@@ -298,6 +298,7 @@ const translationsBn = <String, String>{
   'email': 'ইমেইল',
   'productsFromSupplier': 'পণ্য',
   'restockActivity': 'রিস্টক কার্যক্রম',
+  'noRestocksFromSupplier': 'এই সরবরাহকারীর কাছ থেকে এখনো কোনো রিস্টক নেই',
   'noRestocksYet': 'এই সরবরাহকারীর কাছ থেকে এখনো কোনো রিস্টক হয়নি',
   'payDue': 'বকেয়া পরিশোধ',
   'recordPaymentToSupplier': 'পেমেন্ট রেকর্ড',

@@ -298,6 +298,7 @@ const translationsTh = <String, String>{
   'email': 'อีเมล',
   'productsFromSupplier': 'สินค้า',
   'restockActivity': 'กิจกรรมเติมสต็อก',
+  'noRestocksFromSupplier': 'ยังไม่มีการเติมสต็อกจากผู้จำหน่ายรายนี้',
   'noRestocksYet': 'ยังไม่มีการเติมสต็อกจากผู้จัดจำหน่ายนี้',
   'payDue': 'ชำระยอดค้าง',
   'recordPaymentToSupplier': 'บันทึกการชำระเงิน',

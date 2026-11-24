@@ -71,6 +71,24 @@ const StockMovementSchema = CollectionSchema(
         ),
       ],
     ),
+    r'supplierId_createdAt': IndexSchema(
+      id: 1756812986165575238,
+      name: r'supplierId_createdAt',
+      unique: false,
+      replace: false,
+      properties: [
+        IndexPropertySchema(
+          name: r'supplierId',
+          type: IndexType.value,
+          caseSensitive: false,
+        ),
+        IndexPropertySchema(
+          name: r'createdAt',
+          type: IndexType.value,
+          caseSensitive: false,
+        ),
+      ],
+    ),
     r'createdAt': IndexSchema(
       id: -3433535483987302584,
       name: r'createdAt',
@@ -215,6 +233,15 @@ extension StockMovementQueryWhereSort
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         const IndexWhereClause.any(indexName: r'productId'),
+      );
+    });
+  }
+
+  QueryBuilder<StockMovement, StockMovement, QAfterWhere>
+  anySupplierIdCreatedAt() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        const IndexWhereClause.any(indexName: r'supplierId_createdAt'),
       );
     });
   }
@@ -396,6 +423,247 @@ extension StockMovementQueryWhere
           lower: [lowerProductId],
           includeLower: includeLower,
           upper: [upperProductId],
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<StockMovement, StockMovement, QAfterWhereClause>
+  supplierIdEqualToAnyCreatedAt(int supplierId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(
+          indexName: r'supplierId_createdAt',
+          value: [supplierId],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<StockMovement, StockMovement, QAfterWhereClause>
+  supplierIdNotEqualToAnyCreatedAt(int supplierId) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'supplierId_createdAt',
+                lower: [],
+                upper: [supplierId],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'supplierId_createdAt',
+                lower: [supplierId],
+                includeLower: false,
+                upper: [],
+              ),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'supplierId_createdAt',
+                lower: [supplierId],
+                includeLower: false,
+                upper: [],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'supplierId_createdAt',
+                lower: [],
+                upper: [supplierId],
+                includeUpper: false,
+              ),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<StockMovement, StockMovement, QAfterWhereClause>
+  supplierIdGreaterThanAnyCreatedAt(int supplierId, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'supplierId_createdAt',
+          lower: [supplierId],
+          includeLower: include,
+          upper: [],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<StockMovement, StockMovement, QAfterWhereClause>
+  supplierIdLessThanAnyCreatedAt(int supplierId, {bool include = false}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'supplierId_createdAt',
+          lower: [],
+          upper: [supplierId],
+          includeUpper: include,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<StockMovement, StockMovement, QAfterWhereClause>
+  supplierIdBetweenAnyCreatedAt(
+    int lowerSupplierId,
+    int upperSupplierId, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'supplierId_createdAt',
+          lower: [lowerSupplierId],
+          includeLower: includeLower,
+          upper: [upperSupplierId],
+          includeUpper: includeUpper,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<StockMovement, StockMovement, QAfterWhereClause>
+  supplierIdEqualToCreatedAtIsNull(int supplierId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(
+          indexName: r'supplierId_createdAt',
+          value: [supplierId, null],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<StockMovement, StockMovement, QAfterWhereClause>
+  supplierIdEqualToCreatedAtIsNotNull(int supplierId) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'supplierId_createdAt',
+          lower: [supplierId, null],
+          includeLower: false,
+          upper: [supplierId],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<StockMovement, StockMovement, QAfterWhereClause>
+  supplierIdCreatedAtEqualTo(int supplierId, DateTime? createdAt) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.equalTo(
+          indexName: r'supplierId_createdAt',
+          value: [supplierId, createdAt],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<StockMovement, StockMovement, QAfterWhereClause>
+  supplierIdEqualToCreatedAtNotEqualTo(int supplierId, DateTime? createdAt) {
+    return QueryBuilder.apply(this, (query) {
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'supplierId_createdAt',
+                lower: [supplierId],
+                upper: [supplierId, createdAt],
+                includeUpper: false,
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'supplierId_createdAt',
+                lower: [supplierId, createdAt],
+                includeLower: false,
+                upper: [supplierId],
+              ),
+            );
+      } else {
+        return query
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'supplierId_createdAt',
+                lower: [supplierId, createdAt],
+                includeLower: false,
+                upper: [supplierId],
+              ),
+            )
+            .addWhereClause(
+              IndexWhereClause.between(
+                indexName: r'supplierId_createdAt',
+                lower: [supplierId],
+                upper: [supplierId, createdAt],
+                includeUpper: false,
+              ),
+            );
+      }
+    });
+  }
+
+  QueryBuilder<StockMovement, StockMovement, QAfterWhereClause>
+  supplierIdEqualToCreatedAtGreaterThan(
+    int supplierId,
+    DateTime? createdAt, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'supplierId_createdAt',
+          lower: [supplierId, createdAt],
+          includeLower: include,
+          upper: [supplierId],
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<StockMovement, StockMovement, QAfterWhereClause>
+  supplierIdEqualToCreatedAtLessThan(
+    int supplierId,
+    DateTime? createdAt, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'supplierId_createdAt',
+          lower: [supplierId],
+          upper: [supplierId, createdAt],
+          includeUpper: include,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<StockMovement, StockMovement, QAfterWhereClause>
+  supplierIdEqualToCreatedAtBetween(
+    int supplierId,
+    DateTime? lowerCreatedAt,
+    DateTime? upperCreatedAt, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addWhereClause(
+        IndexWhereClause.between(
+          indexName: r'supplierId_createdAt',
+          lower: [supplierId, lowerCreatedAt],
+          includeLower: includeLower,
+          upper: [supplierId, upperCreatedAt],
           includeUpper: includeUpper,
         ),
       );

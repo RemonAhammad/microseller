@@ -298,6 +298,7 @@ const translationsEs = <String, String>{
   'email': 'Correo electrónico',
   'productsFromSupplier': 'Productos',
   'restockActivity': 'Actividad de reabastecimiento',
+  'noRestocksFromSupplier': 'Aún no hay reposiciones de este proveedor',
   'noRestocksYet': 'Aún no hay reabastecimientos de este proveedor',
   'payDue': 'Pagar deuda',
   'recordPaymentToSupplier': 'Registrar pago',
