@@ -46,7 +46,8 @@ class CategoryScreen extends ConsumerWidget {
             );
           }
           return ListView.separated(
-            padding: const EdgeInsets.all(16),
+            // Bottom room so the + button never covers the last category.
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
             itemCount: cats.length,
             separatorBuilder: (_, __) => const SizedBox(height: 8),
             itemBuilder: (context, i) => AnimatedEntrance(

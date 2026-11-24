@@ -59,6 +59,11 @@ void main() {
     expect(find.text('Snacks'), findsNothing);
     expect(find.text('Clothes'), findsOneWidget);
     expect(find.textContaining('Deleted: Snacks'), findsOneWidget);
+    // The undo snackbar goes away on its own after 5 seconds.
+    await tester.pump(const Duration(seconds: 1)); // finishes sliding in
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Deleted: Snacks'), findsNothing);
     await tester.runAsync(() async {
       expect(await isar.categories.get(id), isNull);
       expect(await isar.trashEntries.count(), 1);

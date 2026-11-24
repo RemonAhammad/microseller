@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../core/constants/app_icons.dart';
@@ -72,14 +74,17 @@ extension ContextExtensions on BuildContext {
     const background = Color(0xFF323232);
 
     messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(
+    final controller = messenger.showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: background,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 10),
+        duration: const Duration(seconds: 5),
+        // Flutter keeps a snackbar with an action until it's tapped unless
+        // told otherwise; this one must go away on its own.
+        persist: false,
         action: SnackBarAction(
           label: actionLabel,
           textColor: _readableOn(brand.primaryLight, background),
@@ -87,6 +92,17 @@ extension ContextExtensions on BuildContext {
         ),
       ),
     );
+    // Flutter's own snackbar timer stalls on some phones (MIUI), the same
+    // quirk pdf_saved_sheet.dart works around, so close it ourselves. Older
+    // snackbars were hidden above, so while ours is open it's the current one.
+    var closed = false;
+    final timer = Timer(const Duration(seconds: 5, milliseconds: 300), () {
+      if (!closed) controller.close();
+    });
+    controller.closed.then((_) {
+      closed = true;
+      timer.cancel();
+    });
   }
 
   Future<bool?> showConfirmDialog({
