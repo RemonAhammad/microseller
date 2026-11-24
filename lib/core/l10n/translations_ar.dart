@@ -667,6 +667,7 @@ const translationsAr = <String, String>{
   'statementShareFailed': 'تم إنشاء كشف الحساب لكن تعذّرت مشاركته. حاول مرة أخرى.',
   'statement': 'كشف حساب',
   'paymentHistory': 'سجل المدفوعات',
+  'showMore': 'عرض المزيد',
   'noPayments': 'لا توجد مدفوعات مسجلة بعد',
   'recalculateBalances': 'إعادة حساب الأرصدة',
   'balancesRecalculated': 'تمت إعادة حساب الأرصدة: تم تحديث {count}',

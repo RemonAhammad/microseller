@@ -668,6 +668,7 @@ const translationsTr = <String, String>{
   'statementShareFailed': 'Ekstre oluşturuldu ancak paylaşılamadı. Lütfen tekrar deneyin.',
   'statement': 'Ekstre',
   'paymentHistory': 'Ödeme Geçmişi',
+  'showMore': 'Daha fazla göster',
   'noPayments': 'Henüz kayıtlı ödeme yok',
   'recalculateBalances': 'Bakiyeleri yeniden hesapla',
   'balancesRecalculated': 'Bakiyeler yeniden hesaplandı: {count} güncellendi',

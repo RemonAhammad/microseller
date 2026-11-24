@@ -668,6 +668,7 @@ const translationsEn = <String, String>{
   'statementShareFailed': 'The statement was created but couldn\'t be shared. Please try again.',
   'statement': 'Statement',
   'paymentHistory': 'Payment History',
+  'showMore': 'Show more',
   'noPayments': 'No payments recorded yet',
   'recalculateBalances': 'Recalculate balances',
   'balancesRecalculated': 'Balances recalculated: {count} updated',

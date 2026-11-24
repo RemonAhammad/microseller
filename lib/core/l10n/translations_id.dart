@@ -668,6 +668,7 @@ const translationsId = <String, String>{
   'statementShareFailed': 'Laporan sudah dibuat, tetapi tidak dapat dibagikan. Silakan coba lagi.',
   'statement': 'Laporan',
   'paymentHistory': 'Riwayat Pembayaran',
+  'showMore': 'Tampilkan lebih banyak',
   'noPayments': 'Belum ada pembayaran tercatat',
   'recalculateBalances': 'Hitung ulang saldo',
   'balancesRecalculated': 'Saldo dihitung ulang: {count} diperbarui',

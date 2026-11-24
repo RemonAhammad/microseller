@@ -668,6 +668,7 @@ const translationsBn = <String, String>{
   'statementShareFailed': 'স্টেটমেন্ট তৈরি হয়েছে, কিন্তু শেয়ার করা যায়নি। আবার চেষ্টা করুন।',
   'statement': 'স্টেটমেন্ট',
   'paymentHistory': 'পেমেন্টের ইতিহাস',
+  'showMore': 'আরও দেখুন',
   'noPayments': 'এখনো কোনো পেমেন্ট নেই',
   'recalculateBalances': 'বাকি পুনরায় হিসাব করুন',
   'balancesRecalculated': 'বাকি পুনরায় হিসাব হয়েছে: {count}টি আপডেট',

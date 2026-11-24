@@ -668,6 +668,7 @@ const translationsMs = <String, String>{
   'statementShareFailed': 'Penyata telah dibuat tetapi tidak dapat dikongsi. Sila cuba lagi.',
   'statement': 'Penyata',
   'paymentHistory': 'Sejarah Bayaran',
+  'showMore': 'Tunjuk lagi',
   'noPayments': 'Belum ada bayaran direkodkan',
   'recalculateBalances': 'Kira semula baki',
   'balancesRecalculated': 'Baki dikira semula: {count} dikemas kini',

@@ -165,13 +165,3 @@ Stream<double> duesCollectedThisMonth(Ref ref) async* {
       mergeChanges([isar.payments.watchLazy(), isar.orders.watchLazy()]),
       load);
 }
-
-@riverpod
-Stream<List<Payment>> customerPayments(Ref ref, int customerId) async* {
-  final isar = await ref.watch(isarProvider.future);
-  final query =
-      isar.payments.where().customerIdEqualTo(customerId).sortByPaidAtDesc()
-
-          .thenById();
-  yield* reloadOn(isar.payments.watchLazy(), query.findAll);
-}

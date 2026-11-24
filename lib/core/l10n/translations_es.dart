@@ -667,6 +667,7 @@ const translationsEs = <String, String>{
   'statementShareFailed': 'El estado de cuenta se creó, pero no se pudo compartir. Inténtalo de nuevo.',
   'statement': 'Estado de cuenta',
   'paymentHistory': 'Historial de pagos',
+  'showMore': 'Mostrar más',
   'noPayments': 'Aún no hay pagos registrados',
   'recalculateBalances': 'Recalcular saldos',
   'balancesRecalculated': 'Saldos recalculados: {count} actualizados',

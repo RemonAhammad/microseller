@@ -668,6 +668,7 @@ const translationsUr = <String, String>{
   'statementShareFailed': 'گوشوارہ بن گیا لیکن شیئر نہیں ہو سکا۔ دوبارہ کوشش کریں۔',
   'statement': 'گوشوارہ',
   'paymentHistory': 'ادائیگیوں کی تاریخ',
+  'showMore': 'مزید دکھائیں',
   'noPayments': 'ابھی تک کوئی ادائیگی درج نہیں',
   'recalculateBalances': 'بقایا دوبارہ حساب کریں',
   'balancesRecalculated': 'بقایا دوبارہ حساب ہو گیا: {count} اپ ڈیٹ',

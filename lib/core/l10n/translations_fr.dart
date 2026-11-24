@@ -668,6 +668,7 @@ const translationsFr = <String, String>{
   'statementShareFailed': 'Le relevé a été créé mais n\'a pas pu être partagé. Réessayez.',
   'statement': 'Relevé',
   'paymentHistory': 'Historique des paiements',
+  'showMore': 'Afficher plus',
   'noPayments': 'Aucun paiement enregistré',
   'recalculateBalances': 'Recalculer les soldes',
   'balancesRecalculated': 'Soldes recalculés : {count} mis à jour',

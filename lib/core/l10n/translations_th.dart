@@ -668,6 +668,7 @@ const translationsTh = <String, String>{
   'statementShareFailed': 'สร้างรายการเดินบัญชีแล้ว แต่แชร์ไม่ได้ โปรดลองอีกครั้ง',
   'statement': 'รายการเดินบัญชี',
   'paymentHistory': 'ประวัติการชำระเงิน',
+  'showMore': 'แสดงเพิ่มเติม',
   'noPayments': 'ยังไม่มีการชำระเงิน',
   'recalculateBalances': 'คำนวณยอดค้างใหม่',
   'balancesRecalculated': 'คำนวณยอดใหม่แล้ว: อัปเดต {count} ราย',

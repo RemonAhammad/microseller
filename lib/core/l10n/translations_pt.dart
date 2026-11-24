@@ -668,6 +668,7 @@ const translationsPt = <String, String>{
   'statementShareFailed': 'O extrato foi criado, mas não foi possível compartilhá-lo. Tente novamente.',
   'statement': 'Extrato',
   'paymentHistory': 'Histórico de pagamentos',
+  'showMore': 'Mostrar mais',
   'noPayments': 'Nenhum pagamento registrado ainda',
   'recalculateBalances': 'Recalcular saldos',
   'balancesRecalculated': 'Saldos recalculados: {count} atualizados',

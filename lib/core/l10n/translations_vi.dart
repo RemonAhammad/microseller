@@ -668,6 +668,7 @@ const translationsVi = <String, String>{
   'statementShareFailed': 'Đã tạo sao kê nhưng không thể chia sẻ. Vui lòng thử lại.',
   'statement': 'Sao kê',
   'paymentHistory': 'Lịch sử thanh toán',
+  'showMore': 'Xem thêm',
   'noPayments': 'Chưa có thanh toán nào',
   'recalculateBalances': 'Tính lại công nợ',
   'balancesRecalculated': 'Đã tính lại: cập nhật {count}',

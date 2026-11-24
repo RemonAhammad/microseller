@@ -4,10 +4,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import '../../../data/models/customer.dart';
 import '../providers/customer_detail_providers.dart';
 import '../providers/customer_provider.dart';
-import '../providers/dues_provider.dart';
 import 'widgets/due_actions.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/utils/date_formatter.dart';
@@ -18,6 +18,7 @@ import '../../../core/extensions/context_extensions.dart';
 import '../../../core/theme/brand_colors.dart';
 import '../../settings/providers/trash_provider.dart';
 import '../../../shared/widgets/confirm_dialog.dart';
+import '../../../shared/widgets/loading_overlay.dart';
 import '../../orders/presentation/widgets/order_card.dart';
 import 'package:tabler_icons_next/tabler_icons_next.dart' as tabler;
 import '../../../core/constants/app_icons.dart';
@@ -204,7 +205,7 @@ class CustomerDetailScreen extends ConsumerWidget {
 
                       _PaymentHistory(customerId: customerId),
 
-                      Text(s.purchaseHistory,
+                      Text(s.orders,
                           style: theme.textTheme.titleSmall
                               ?.copyWith(fontWeight: FontWeight.w700)),
                       const SizedBox(height: 8),
@@ -231,13 +232,21 @@ class _PurchaseChartSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final spending =
-        ref.watch(customerMonthlySpendingProvider(customerId)).value;
-    if (spending == null) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: _PurchaseHistoryChart(monthlySpending: spending),
-    );
+    final provider = customerMonthlySpendingProvider(customerId);
+    return ref.watch(provider).when(
+          skipLoadingOnReload: true,
+          loading: () => const Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: LoadingShimmer(height: 270, borderRadius: 14),
+          ),
+          error: (_, _) => _SectionError(onRetry: () => ref.invalidate(provider)),
+          data: (spending) => spending == null
+              ? const SizedBox.shrink()
+              : Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _PurchaseHistoryChart(monthlySpending: spending),
+                ),
+        );
   }
 }
 
@@ -292,8 +301,19 @@ class _PurchaseHistoryListState extends ConsumerState<_PurchaseHistoryList> {
 
     return ref.watch(customerOrdersProvider(widget.customerId)).when(
       skipLoadingOnReload: true,
-      loading: () => const SliverToBoxAdapter(child: SizedBox.shrink()),
-      error: (_, _) => empty,
+      loading: () => SliverList.list(children: [
+        for (var i = 0; i < 3; i++)
+          const Padding(
+            padding: EdgeInsets.only(bottom: 10),
+            child: LoadingShimmer(height: 84, borderRadius: 14),
+          ),
+      ]),
+      error: (_, _) => SliverToBoxAdapter(
+        child: _SectionError(
+          onRetry: () =>
+              ref.invalidate(customerOrdersProvider(widget.customerId)),
+        ),
+      ),
       data: (page) {
         final orders = page.orders;
         if (orders.isEmpty) return empty;
@@ -333,11 +353,8 @@ class _DueActions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = AppStrings.of(context);
-    final due = ref
-        .watch(duesProvider)
-        .value
-        ?.where((d) => d.customer.id == customer.id)
-        .firstOrNull;
+    final dueAsync = ref.watch(customerDueProvider(customer.id));
+    final due = dueAsync.value;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -345,6 +362,17 @@ class _DueActions extends ConsumerWidget {
         spacing: 8,
         runSpacing: 8,
         children: [
+          if (dueAsync.isLoading && !dueAsync.hasValue) ...[
+            const LoadingShimmer(width: 110, height: 40, borderRadius: 20),
+            const LoadingShimmer(width: 110, height: 40, borderRadius: 20),
+          ],
+          if (dueAsync.hasError && !dueAsync.hasValue)
+            TextButton.icon(
+              onPressed: () =>
+                  ref.invalidate(customerDueProvider(customer.id)),
+              icon: const ThinIcon(tabler.Refresh.new, size: 18),
+              label: Text(s.tryAgain),
+            ),
           if (due != null) ...[
             FilledButton.icon(
               onPressed: () =>
@@ -386,25 +414,100 @@ class _PaymentHistory extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = AppStrings.of(context);
-    final payments = ref.watch(customerPaymentsProvider(customerId)).value;
-    if (payments == null || payments.isEmpty) return const SizedBox.shrink();
+    final provider = customerPaymentPagesProvider(customerId);
+    final title = Text(s.paymentHistory,
+        style: Theme.of(context)
+            .textTheme
+            .titleSmall
+            ?.copyWith(fontWeight: FontWeight.w700));
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(s.paymentHistory,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 4),
-          for (final p in payments.take(10))
-            PaymentHistoryTile(
-              payment: p,
-              onTap: () => context.push('/orders/${p.orderId}'),
+    return ref.watch(provider).when(
+          skipLoadingOnReload: true,
+          loading: () => Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                title,
+                const SizedBox(height: 8),
+                for (var i = 0; i < 2; i++)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8),
+                    child: LoadingShimmer(height: 48),
+                  ),
+              ],
             ),
+          ),
+          error: (_, _) => Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                title,
+                _SectionError(onRetry: () => ref.invalidate(provider)),
+              ],
+            ),
+          ),
+          data: (page) {
+            if (page.payments.isEmpty) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  title,
+                  const SizedBox(height: 4),
+                  for (final p in page.payments)
+                    PaymentHistoryTile(
+                      payment: p,
+                      onTap: () => context.push('/orders/${p.orderId}'),
+                    ),
+                  if (page.hasMore)
+                    Center(
+                      child: TextButton(
+                        onPressed: () =>
+                            ref.read(provider.notifier).loadMore(),
+                        child: Text(s.showMore),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+  }
+}
+
+/// A section that failed to load: says so, with Try again.
+class _SectionError extends StatelessWidget {
+  const _SectionError({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = AppStrings.of(context);
+    final theme = Theme.of(context);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Text(
+            s.errorOccurred,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: theme.colorScheme.error),
+          ),
+          const SizedBox(height: 4),
+          TextButton.icon(
+            onPressed: onRetry,
+            icon: const ThinIcon(tabler.Refresh.new, size: 18),
+            label: Text(s.tryAgain),
+          ),
         ],
       ),
     );
@@ -560,10 +663,15 @@ class _PurchaseHistoryChart extends StatelessWidget {
 
   const _PurchaseHistoryChart({required this.monthlySpending});
 
-  static const _monthNames = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-  ];
+  /// The month's short name in the app's language (Jan, জানু., ينا…).
+  static String _monthName(BuildContext context, DateTime month) {
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    try {
+      return DateFormat.MMM(locale).format(month);
+    } catch (_) {
+      return DateFormat.MMM('en').format(month);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -600,7 +708,7 @@ class _PurchaseHistoryChart extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Purchase History (6 months)',
+                  AppStrings.of(context).purchaseHistory,
                   style: theme.textTheme.titleSmall
                       ?.copyWith(fontWeight: FontWeight.w700),
                 ),
@@ -621,7 +729,7 @@ class _PurchaseHistoryChart extends StatelessWidget {
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         final month = entries[group.x.toInt()].key;
                         return BarTooltipItem(
-                          '${_monthNames[month.month - 1]}\n',
+                          '${_monthName(context, month)}\n',
                           const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -685,7 +793,7 @@ class _PurchaseHistoryChart extends StatelessWidget {
                           return Padding(
                             padding: const EdgeInsets.only(top: 6),
                             child: Text(
-                              _monthNames[month.month - 1],
+                              _monthName(context, month),
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
