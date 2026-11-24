@@ -133,10 +133,14 @@ void main() {
 
     /// Pumps until [done] or the work (PDF render, isolate) gives up.
     Future<void> waitFor(WidgetTester tester, bool Function() done) async {
-      for (var i = 0; i < 120 && !done(); i++) {
+      // Up to 30 s of real time: CI runners are much slower than a Mac, and
+      // the screen loads its data on a worker isolate. Fails loudly rather
+      // than letting the next finder throw "No element".
+      for (var i = 0; i < 600 && !done(); i++) {
         await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
         await tester.pump(const Duration(milliseconds: 50));
       }
+      if (!done()) fail('waitFor: condition not met after 30 s');
       await tester.pump(const Duration(milliseconds: 300));
     }
 
