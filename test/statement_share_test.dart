@@ -19,6 +19,8 @@ import 'package:micro_seller/data/services/pdf_service.dart';
 import 'package:micro_seller/features/customers/presentation/customer_detail_screen.dart';
 import 'package:micro_seller/features/customers/presentation/widgets/due_actions.dart';
 
+import 'package:micro_seller/data/services/db_worker.dart';
+
 import 'support/isar_core.dart';
 import 'support/screen_harness.dart';
 
@@ -122,6 +124,7 @@ void main() {
       // never resumes in the next test.
       await loadPdfWatermarkIcon();
       isar = await openTestIsar('statement_share');
+      dbWorkerCoreLibrary = isarCoreLibrary(); // the due loads on a worker
       await isar.writeTxn(() async {
         customerId = await isar.customers.put(Customer(name: 'Rahim', phone: '01700000000'));
         final orderId = await isar.orders.put(Order(

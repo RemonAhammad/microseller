@@ -15,6 +15,7 @@ import 'package:micro_seller/data/models/customer.dart';
 import 'package:micro_seller/data/models/order.dart';
 import 'package:micro_seller/data/models/order_item.dart';
 import 'package:micro_seller/data/models/payment.dart';
+import 'package:micro_seller/data/services/db_worker.dart';
 import 'package:micro_seller/data/services/isar_service.dart';
 import 'package:micro_seller/data/services/local_backup_service.dart';
 import 'package:micro_seller/data/services/mail_service.dart';
@@ -92,6 +93,9 @@ void main() {
     Future<void> seed({String email = 'rahim@shop.com'}) async {
       await loadPdfWatermarkIcon();
       isar = await openTestIsar('customer_email');
+      // Customer detail loads the due on a worker isolate, which must find
+      // the Isar core too (it found it by chance on a Mac, not on Linux CI).
+      dbWorkerCoreLibrary = isarCoreLibrary();
       await isar.writeTxn(() async {
         customerId = await isar.customers.put(Customer(
             name: 'Rahim', phone: '01700000000', email: email, totalOrders: 1, totalSpent: 20));
