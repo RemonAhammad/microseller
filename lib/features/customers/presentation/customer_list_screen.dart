@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/customer_provider.dart';
+import '../../../data/models/customer.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/utils/debouncer.dart';
 import '../../../core/utils/number_input.dart';
@@ -26,6 +27,9 @@ class _CustomerListScreenState extends ConsumerState<CustomerListScreen> {
   final _debouncer = Debouncer();
   String _query = '';
 
+  /// The customer type shown; null = all.
+  CustomerTag? _tag;
+
   @override
   void dispose() {
     _searchCtrl.dispose();
@@ -37,6 +41,25 @@ class _CustomerListScreenState extends ConsumerState<CustomerListScreen> {
   Widget build(BuildContext context) {
     final s = AppStrings.of(context);
     final customersAsync = ref.watch(customersProvider);
+    final all = customersAsync.value ?? const <Customer>[];
+    final chipRowHeight = customerTypeChipRowHeight(MediaQuery.textScalerOf(context));
+    String tagLabel(CustomerTag t) => switch (t) {
+          CustomerTag.newCustomer => s.tagNew,
+          CustomerTag.regular => s.regular,
+          CustomerTag.vip => s.vip,
+        };
+    Widget chip(CustomerTag? t) {
+      final n = t == null ? all.length : all.where((c) => c.tag == t).length;
+      return Padding(
+        padding: const EdgeInsetsDirectional.only(end: 8),
+        child: ChoiceChip(
+          key: ValueKey('customerTypeChip-${t?.name ?? 'all'}'),
+          label: Text('${t == null ? s.all : tagLabel(t)} ($n)', softWrap: false),
+          selected: _tag == t,
+          onSelected: (_) => setState(() => _tag = t),
+        ),
+      );
+    }
 
     return ScreenGuide(
       id: 'customers',
@@ -56,8 +79,9 @@ class _CustomerListScreenState extends ConsumerState<CustomerListScreen> {
           const SectionHelpButton('customers'),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(64),
-          child: Padding(
+          preferredSize: Size.fromHeight(64 + chipRowHeight + 8),
+          child: Column(children: [
+          Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: TextField(
               controller: _searchCtrl,
@@ -79,18 +103,37 @@ class _CustomerListScreenState extends ConsumerState<CustomerListScreen> {
               ),
             ),
           ),
+          SizedBox(
+            height: chipRowHeight,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                  children: [chip(null), for (final t in CustomerTag.values) chip(t)]),
+            ),
+          ),
+          const SizedBox(height: 8),
+          ]),
         ),
       ),
       body: customersAsync.when(
         data: (allCustomers) {
-          final customers = _query.isEmpty
-              ? allCustomers
-              : allCustomers
-                  .where((c) =>
+          final customers = allCustomers
+              .where((c) =>
+                  (_tag == null || c.tag == _tag) &&
+                  (_query.isEmpty ||
                       c.name.toLowerCase().contains(_query) ||
-                      NumberInput.phoneMatches(c.phone, _query))
-                  .toList();
+                      NumberInput.phoneMatches(c.phone, _query)))
+              .toList();
 
+          if (customers.isEmpty && _tag != null && allCustomers.isNotEmpty) {
+            return EmptyState(
+              icon: tabler.Users.new,
+              title: s.noCustomersFound,
+              actionLabel: s.clearFilters,
+              onAction: () => setState(() => _tag = null),
+            );
+          }
           if (customers.isEmpty) {
             return EmptyState(
               icon: tabler.Users.new,
@@ -124,3 +167,9 @@ class _CustomerListScreenState extends ConsumerState<CustomerListScreen> {
     );
   }
 }
+
+/// The customer type chip row's height: 36 at the default text size, plus
+/// what the chip label grows with a larger font.
+@visibleForTesting
+double customerTypeChipRowHeight(TextScaler textScaler) =>
+    36 + (textScaler.scale(14) - 14) * 1.43;
