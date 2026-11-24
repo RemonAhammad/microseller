@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/serial_sheet.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -98,7 +99,11 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
       ];
 
   double get _returnTotal =>
-      returnValueFor(widget.originalOrder, _returnItems).total;
+      returnValueFor(widget.originalOrder, _returnItems, applyDiscount: _applyDiscount).total;
+
+  /// Whether returned items are valued after their share of the order
+  /// discount (on by default) or at full list price.
+  bool _applyDiscount = true;
 
   /// The return pays off what's still owed on the order first; only the
   /// rest can go back as cash (never more than was paid).
@@ -109,6 +114,64 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
   double get _maxRefundable =>
       (_earlierReturned + _returnTotal - widget.originalOrder.balanceDue)
           .clamp(0.0, widget.originalOrder.amountPaid);
+
+  /// Whether the order had a discount: then each line is worth less than
+  /// its list price, and the screen shows how the refund is worked out.
+  bool get _hasDiscount =>
+      widget.originalOrder.goodsTotal - widget.originalOrder.netGoods > kDueEpsilon;
+
+  /// The order discount as a percent, at most 2 decimals ("10", "12.5").
+  String get _discountPercent {
+    final p = (1 - widget.originalOrder.discountFactor) * 100;
+    // A tiny discount on a big order would read "0%".
+    if (p < 0.005) return '<0.01';
+    return p.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0+$'), '');
+  }
+
+  /// List price − discount share (+ tax share) = return value; what's still
+  /// owed on the order is paid off first, the rest can go back as cash.
+  Widget _buildCalculation(BuildContext context, ColorScheme cs) {
+    final s = AppStrings.of(context);
+    final v = returnValueFor(widget.originalOrder, _returnItems, applyDiscount: _applyDiscount);
+    // Each row is shown rounded to the currency's decimals; the discount
+    // and the due line are derived from the rounded rows, so the column
+    // always adds up on screen (10 − 3.33 = 6.67, never 6.66 or 6.68).
+    double r(double x) {
+      final f = math.pow(10, NumberInput.moneyDecimals).toDouble();
+      return (x * f).roundToDouble() / f;
+    }
+    final subtotal = r(v.subtotal);
+    final tax = r(v.tax);
+    final total = r(v.total);
+    final discount = math.max(0.0, r(subtotal + tax - total));
+    final maxRefund = r(_maxRefundable);
+    final duePaid = math.max(0.0, r(total - maxRefund));
+    return Container(
+      key: const ValueKey('returnCalculation'),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: cs.primary.withValues(alpha: 0.06),
+        border: Border.all(color: cs.outlineVariant),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text(s.tr('returnCalcTitle'), style: _sectionLabel(cs)),
+        const SizedBox(height: 8),
+        _CalcRow(s.tr('returnCalcItems'), CurrencyFormatter.format(subtotal)),
+        if (_applyDiscount)
+          _CalcRow(s.tr('returnCalcDiscount').replaceAll('{percent}', _discountPercent),
+            '−${CurrencyFormatter.format(discount)}'),
+        if (widget.originalOrder.taxAmount > 0)
+          _CalcRow(s.tr('returnCalcTax'), '+${CurrencyFormatter.format(tax)}'),
+        Divider(height: 12, color: cs.outlineVariant),
+        _CalcRow(s.tr('returnCalcValue'), CurrencyFormatter.format(total), bold: true),
+        if (duePaid > 0)
+          _CalcRow(s.tr('returnCalcDuePaid'), '−${CurrencyFormatter.format(duePaid)}'),
+        _CalcRow(s.tr('returnCalcMaxRefund'), CurrencyFormatter.format(maxRefund),
+            bold: true),
+      ]),
+    );
+  }
 
   double _suggestedRefund = 0;
 
@@ -147,6 +210,7 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
             returnItems: returnItems,
             reason: _reason,
             refundAmount: refund,
+            applyDiscount: _applyDiscount,
             returnNotes: _notesCtrl.text.trim(),
           );
       if (mounted) {
@@ -300,6 +364,12 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
                           style: theme.textTheme.bodySmall
                               ?.copyWith(color: cs.onSurfaceVariant),
                         ),
+                        if (_hasDiscount && _applyDiscount)
+                          Text(
+                            s.tr('priceAfterDiscountEach').replaceAll('{price}',
+                                CurrencyFormatter.format(item.unitPrice * order.discountFactor)),
+                            style: theme.textTheme.bodySmall?.copyWith(color: cs.primary),
+                          ),
                         if (done > 1e-9)
                           Text(
                             s.tr('returnedQty').replaceAll('{qty}', s.qty(done, item.unit)),
@@ -340,6 +410,25 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
             }).toList(),
           ),
           const SizedBox(height: 16),
+
+          if (_hasDiscount) ...[
+            SwitchListTile(
+              key: const ValueKey('applyDiscountSwitch'),
+              contentPadding: EdgeInsets.zero,
+              value: _applyDiscount,
+              title: Text(s.tr('returnApplyDiscount')),
+              subtitle: Text(s.tr('returnApplyDiscountHint')),
+              onChanged: (v) => setState(() {
+                _applyDiscount = v;
+                _updateRefundAmount();
+              }),
+            ),
+            const SizedBox(height: 8),
+          ],
+          if (_hasDiscount && _returnQtys.any((q) => q > 0)) ...[
+            _buildCalculation(context, cs),
+            const SizedBox(height: 16),
+          ],
 
           Text(s.refundAmount, style: _sectionLabel(cs)),
           const SizedBox(height: 8),
@@ -574,5 +663,34 @@ class _CreateReturnScreenState extends ConsumerState<CreateReturnScreen> {
         _updateRefundAmount();
       }),
     ]);
+  }
+}
+
+/// One line of the refund calculation: the label wraps, the amount stays on
+/// one line and shrinks rather than being cut.
+class _CalcRow extends StatelessWidget {
+  final String label;
+  final String amount;
+  final bool bold;
+  const _CalcRow(this.label, this.amount, {this.bold = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.bodyMedium?.copyWith(
+        fontWeight: bold ? FontWeight.w700 : FontWeight.w400);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(child: Text(label, style: style)),
+        const SizedBox(width: 12),
+        Flexible(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerEnd,
+            child: Text(amount, style: style, textDirection: TextDirection.ltr),
+          ),
+        ),
+      ]),
+    );
   }
 }

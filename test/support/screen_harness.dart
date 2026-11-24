@@ -28,6 +28,7 @@ Future<void> pumpScreen(
   required Isar isar,
   required Widget screen,
   List overrides = const [],
+  Locale? locale,
 }) async {
   tester.view.physicalSize = const Size(800, 1600);
   tester.view.devicePixelRatio = 2;
@@ -46,6 +47,7 @@ Future<void> pumpScreen(
     overrides: [isarProvider.overrideWith((ref) async => isar), ...overrides.cast()],
     child: MaterialApp.router(
       routerConfig: router,
+      locale: locale,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

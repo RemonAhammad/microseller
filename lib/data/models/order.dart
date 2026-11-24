@@ -248,10 +248,12 @@ double lineTotal(double unitPrice, double qty) =>
 }
 
 ({double subtotal, double discount, double tax, double total}) returnValueFor(
-    Order original, List<OrderItem> items) {
+    Order original, List<OrderItem> items, {bool applyDiscount = true}) {
   final subtotal = items.fold(0.0, (sum, item) => sum + item.totalPrice);
   final goods = original.goodsTotal;
-  final discount = goods > 0
+  // applyDiscount false: the seller refunds at full list price; the tax
+  // share is then on the list price, at the order's own tax rate.
+  final discount = applyDiscount && goods > 0
       ? (goods - original.netGoods) * subtotal / goods
       : 0.0;
   final net = subtotal - discount;

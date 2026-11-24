@@ -623,6 +623,7 @@ class OrderNotifier extends _$OrderNotifier {
     required List<OrderItem> returnItems,
     required ReturnReason reason,
     required double refundAmount,
+    bool applyDiscount = true,
     String returnNotes = '',
   }) async {
     var newId = 0;
@@ -645,7 +646,7 @@ class OrderNotifier extends _$OrderNotifier {
                 .findAll(),
             returnItems);
 
-        final value = returnValueFor(original, returnItems);
+        final value = returnValueFor(original, returnItems, applyDiscount: applyDiscount);
 
         final returnOrder = Order(
           orderNumber: returnOrderNumber,

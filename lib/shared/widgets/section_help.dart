@@ -277,7 +277,7 @@ const kSectionHelp = {
     'helpCreateReturn',
     hasTitle: true,
     controls: ['Items', 'Reason', 'Refund', 'Serials', 'Submit'],
-    tips: 1,
+    tips: 2,
   ),
   'choose_return_order': SectionHelp(
     'helpChooseReturn',
