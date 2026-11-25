@@ -16,6 +16,7 @@ import 'core/theme/system_ui_style.dart';
 import 'core/utils/currency_formatter.dart';
 import 'core/utils/orientation_policy.dart';
 import 'data/services/auto_backup_runner.dart';
+import 'data/services/drive_service.dart';
 import 'data/services/notification_service.dart';
 import 'data/services/tutorial_service.dart';
 import 'features/settings/providers/display_scale_provider.dart';
@@ -29,6 +30,7 @@ void main() async {
     SharedPreferences.getInstance(),
   ]);
   final prefs = results[1] as SharedPreferences;
+  DriveService.warnIfMisconfigured();
 
   final currency = prefs.getString('currencySymbol');
   if (currency != null && currency.isNotEmpty) {

@@ -61,7 +61,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   bool _isRestoring = false;
   bool _isLocalExporting = false;
   bool _isLocalImporting = false;
-  String? _googleAccountEmail;
+  /// Who Drive is connected as; null when signed out.
+  DriveAccount? _driveAccount;
 
   Future<({bool available, BiometricKind kind})>? _biometrics;
 
@@ -95,7 +96,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
   Future<void> _loadAccount() async {
     final account = await _driveService.getCurrentUser();
     if (mounted) {
-      setState(() => _googleAccountEmail = account?.email);
+      setState(() => _driveAccount = account);
     }
   }
 
@@ -862,6 +863,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
 
                   final user = await _driveService.signIn();
                   if (user == null) return;
+                  if (mounted) setState(() => _driveAccount = user);
                   await ref
                       .read(settingsProvider.notifier)
                       .clearAutoBackupError();
@@ -873,10 +875,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                       backgroundColor: Colors.green,
                     ));
                   }
-                } catch (e) {
+                } on DriveBackupException catch (e, st) {
+                  _logFailure('signIn', e, st);
+                  if (mounted) _showDriveError(e);
+                } catch (e, st) {
+                  _logFailure('resumeAutoBackup', e, st);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text('${s.tr('signInFailed')}: $e'),
+                      content: Text(s.errorOccurred),
                       backgroundColor: Colors.red,
                     ));
                   }
@@ -902,9 +908,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                   ),
                   title: Text(s.googleAccount),
                   subtitle: Text(
-                    _googleAccountEmail ?? s.signIn,
+                    _driveAccount == null
+                        ? s.signIn
+                        : _driveAccount!.email ?? s.googleDriveConnected,
                     style: TextStyle(
-                      color: _googleAccountEmail != null
+                      color: _driveAccount != null
                           ? brand.primary
                           : theme.colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
@@ -912,14 +920,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                 ),
                 control: TextButton(
                   onPressed: () async {
-                    if (_googleAccountEmail != null) {
+                    if (_driveAccount != null) {
                       await _driveService.signOut();
-                      setState(() => _googleAccountEmail = null);
+                      setState(() => _driveAccount = null);
                     } else {
                       try {
                         final account = await _driveService.signIn();
                         if (!mounted) return;
-                        setState(() => _googleAccountEmail = account?.email);
+                        setState(() => _driveAccount = account);
                       } on DriveBackupException catch (e, st) {
 
                         _logFailure('signIn', e, st);
@@ -927,7 +935,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen>
                       }
                     }
                   },
-                  child: Text(_googleAccountEmail != null ? s.signOut : s.signIn),
+                  child: Text(_driveAccount != null ? s.signOut : s.signIn),
                 ),
               ),
               const Divider(height: 1),

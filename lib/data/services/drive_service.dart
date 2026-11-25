@@ -72,6 +72,15 @@ class _AuthClient extends http.BaseClient {
   }
 }
 
+/// Who Settings shows as connected. [email] is null when Drive access was
+/// granted without a Google login (Android without a web client id, see
+/// [DriveService.canAuthenticate]): the app only ever needs the access.
+class DriveAccount {
+  const DriveAccount({this.email});
+
+  final String? email;
+}
+
 class DriveService {
   static const _scopes = [drive.DriveApi.driveAppdataScope];
   static const _maxBackups = 5;
@@ -90,16 +99,35 @@ class DriveService {
     _account = null;
   }
 
-  static Future<void> _ensureInitialized() async {
-    if (_initialized) return;
-    final webClientId = dotenv.isInitialized
+  /// `GOOGLE_OAUTH_WEB_CLIENT_ID` from `.env`, or null when it's empty.
+  static String? get _webClientId {
+    final id = dotenv.isInitialized
         ? dotenv.maybeGet('GOOGLE_OAUTH_WEB_CLIENT_ID')?.trim()
         : null;
-    await GoogleSignIn.instance.initialize(
+    return (id?.isNotEmpty ?? false) ? id : null;
+  }
 
-      serverClientId:
-          (webClientId?.isNotEmpty ?? false) ? webClientId : null,
-    );
+  /// Whether a full Google login (with the account's email) can work here.
+  /// On Android it needs the web client id as `serverClientId`; without one
+  /// the plugin refuses with a configuration error. Drive access itself
+  /// (what backup and restore use) needs only the package name and SHA-1,
+  /// so it works either way. iOS signs in with `GIDClientID` from Info.plist.
+  static bool get canAuthenticate =>
+      defaultTargetPlatform != TargetPlatform.android || _webClientId != null;
+
+  /// Debug builds only: says at startup when Android sign-in is missing its
+  /// web client id, so a developer notices before a user does.
+  static void warnIfMisconfigured() {
+    if (!kDebugMode || canAuthenticate) return;
+    debugPrint('[DriveService] GOOGLE_OAUTH_WEB_CLIENT_ID is empty in .env. '
+        'Sign in will grant Drive access without showing the account email. '
+        'Put the Web application OAuth client id of the same Cloud project '
+        'there (and in the DOTENV secret for CI).');
+  }
+
+  static Future<void> _ensureInitialized() async {
+    if (_initialized) return;
+    await GoogleSignIn.instance.initialize(serverClientId: _webClientId);
     GoogleSignIn.instance.authenticationEvents.listen(
       (e) => _account = switch (e) {
         GoogleSignInAuthenticationEventSignIn() => e.user,
@@ -183,15 +211,30 @@ class DriveService {
     return drive.DriveApi(client);
   }
 
-  Future<GoogleSignInAccount?> signIn() async {
+  /// Signs in for Drive. Null when the seller cancelled.
+  ///
+  /// The app never uses the login itself, only Drive access, so where a full
+  /// login can't work ([canAuthenticate] false) or Google says it isn't
+  /// configured (a web client id from another Cloud project), it asks for
+  /// Drive access directly, as Backup to Drive does (issue #32).
+  Future<DriveAccount?> signIn() async {
     try {
       await _ensureInitialized();
-      final account =
-          await GoogleSignIn.instance.authenticate(scopeHint: _scopes);
-
-      await account.authorizationClient.authorizeScopes(_scopes);
-      _account = account;
-      return account;
+      if (canAuthenticate) {
+        try {
+          final account =
+              await GoogleSignIn.instance.authenticate(scopeHint: _scopes);
+          await account.authorizationClient.authorizeScopes(_scopes);
+          _account = account;
+          return DriveAccount(email: account.email);
+        } on GoogleSignInException catch (e, st) {
+          if (!_isConfigurationError(e)) rethrow;
+          _logError('signIn (login not configured, asking for Drive only)',
+              e, st);
+        }
+      }
+      await GoogleSignIn.instance.authorizationClient.authorizeScopes(_scopes);
+      return const DriveAccount();
     } catch (e, st) {
       _logError('signIn', e, st);
       final mapped = _mapSignInError(e, st);
@@ -200,9 +243,20 @@ class DriveService {
     }
   }
 
+  static bool _isConfigurationError(GoogleSignInException e) =>
+      e.code == GoogleSignInExceptionCode.clientConfigurationError ||
+      e.code == GoogleSignInExceptionCode.providerConfigurationError;
+
   Future<void> signOut() async {
     try {
       await _ensureInitialized();
+      // Drop the Drive token too: access granted without a login outlives
+      // signOut(), and Settings would show it as still connected.
+      final client = GoogleSignIn.instance.authorizationClient;
+      final authz = await client.authorizationForScopes(_scopes);
+      if (authz != null) {
+        await client.clearAuthorizationToken(accessToken: authz.accessToken);
+      }
       await GoogleSignIn.instance.signOut();
       _account = null;
     } catch (e, st) {
@@ -210,17 +264,24 @@ class DriveService {
     }
   }
 
-  Future<GoogleSignInAccount?> getCurrentUser() async {
+  /// Who is connected, for Settings: the signed-in account, else Drive
+  /// access granted without a login (no email), else null.
+  Future<DriveAccount?> getCurrentUser() async {
     try {
       await _ensureInitialized();
-      if (_account != null) return _account;
-      final restored =
-          await GoogleSignIn.instance.attemptLightweightAuthentication();
-      return _account ?? restored;
+      if (_account != null) return DriveAccount(email: _account!.email);
+      // Without a web client id on Android the login can only fail (and log
+      // a configuration error every time Settings opens), so don't try it.
+      if (canAuthenticate) {
+        final restored =
+            await GoogleSignIn.instance.attemptLightweightAuthentication();
+        final account = _account ?? restored;
+        if (account != null) return DriveAccount(email: account.email);
+      }
     } catch (e, st) {
       _logError('getCurrentUser', e, st);
-      return null;
     }
+    return await hasDriveAccess() ? const DriveAccount() : null;
   }
 
   Future<bool> hasDriveAccess() async {

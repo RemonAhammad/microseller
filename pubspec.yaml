@@ -114,6 +114,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  # Tests fake Google sign-in through its platform interface.
+  google_sign_in_platform_interface: ^3.1.0
 
   # Code generation
   build_runner: ^2.15.1

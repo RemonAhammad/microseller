@@ -418,6 +418,7 @@ class _L10nStrings {
   String get driveErrorSignInCancelled => _l10n.tr('driveErrorSignInCancelled');
   String get driveErrorSignInFailed => _l10n.tr('driveErrorSignInFailed');
   String get driveErrorNotConfigured => _l10n.tr('driveErrorNotConfigured');
+  String get googleDriveConnected => _l10n.tr('googleDriveConnected');
   String get driveErrorNetwork => _l10n.tr('driveErrorNetwork');
   String get driveErrorUploadFailed => _l10n.tr('driveErrorUploadFailed');
   String get driveErrorDownloadFailed => _l10n.tr('driveErrorDownloadFailed');
