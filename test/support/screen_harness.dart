@@ -21,6 +21,25 @@ Future<void> settleDb(WidgetTester tester) async {
   }
 }
 
+/// Pumps, letting real time pass, until [done] (up to [timeout]); fails
+/// loudly otherwise. For a step that waits on a write transaction: CI's
+/// Linux runners are far slower than a Mac, so a fixed [settleDb] can end
+/// before the write does, and the next query finds nothing.
+Future<void> waitForDb(
+  WidgetTester tester,
+  bool Function() done, {
+  Duration timeout = const Duration(seconds: 30),
+  String what = 'condition',
+}) async {
+  final rounds = timeout.inMilliseconds ~/ 100;
+  for (var i = 0; i < rounds && !done(); i++) {
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await tester.pump(const Duration(milliseconds: 50));
+  }
+  if (!done()) fail('waitForDb: $what not met after ${timeout.inSeconds} s');
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
 /// [screen] pushed over a plain page (so it can pop), on a tall phone, in
 /// English, with [isar] as the app's database.
 Future<void> pumpScreen(

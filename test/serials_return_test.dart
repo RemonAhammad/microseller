@@ -58,7 +58,8 @@ void main() {
     final submit = find.text('Submit Return Request');
     await tester.scrollUntilVisible(submit, 200, scrollable: find.byType(Scrollable).first);
     await tester.tap(submit);
-    await settleDb(tester);
+    // The screen closes only once the return is saved.
+    await waitForDb(tester, () => find.text(kBelowScreen).evaluate().isNotEmpty, what: 'the return saved and closed');
 
     final ret = (await tester.runAsync(() => isar.orders.filter().isReturnEqualTo(true).findFirst()))!;
     expect(ret.items.single.serials, ['IMEI-2']);
