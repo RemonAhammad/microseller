@@ -22,6 +22,7 @@ import 'package:micro_seller/features/orders/providers/order_form_defaults.dart'
 import 'package:micro_seller/features/orders/providers/quick_add_provider.dart';
 
 import 'support/isar_core.dart';
+import 'support/screen_harness.dart';
 
 /// The order form on a real database. Isar answers from its own threads, so
 /// every step lets real time pass ([settle]) before pumping.
@@ -154,6 +155,7 @@ void main() {
       await tapText(tester, 'Soap');
       await tapText(tester, 'Paid in full');
 
+      await waitForDb(tester, () => find.textContaining('ORD-001').evaluate().isNotEmpty, what: 'the order being saved');
       expect(find.textContaining('ORD-001'), findsOneWidget);
       final saved = (await orders(tester)).single;
       expect(saved.customerId, 0);

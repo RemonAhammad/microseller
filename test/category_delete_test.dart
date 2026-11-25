@@ -54,7 +54,8 @@ void main() {
     expect(find.textContaining('2 products use this category'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(TextButton, 'Delete'));
-    await settle(tester);
+    // A busy machine can take longer than a fixed settle: wait for the list.
+    await waitForDb(tester, () => find.text('Snacks').evaluate().isEmpty, what: 'Snacks leaving the list');
 
     expect(find.text('Snacks'), findsNothing);
     expect(find.text('Clothes'), findsOneWidget);
