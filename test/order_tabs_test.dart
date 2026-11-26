@@ -124,4 +124,28 @@ void main() {
     expect(find.text('Order 2'), findsNothing);
     expect(find.byType(OrderFormScreen, skipOffstage: false), findsOneWidget);
   });
+
+  testWidgets('closing the middle tab keeps the third tab\'s order', (tester) async {
+    await pump(tester);
+    await tester.tap(plus());
+    await settle(tester);
+    await tester.tap(plus());
+    await settle(tester);
+    final third = tester.state(find.byType(OrderFormScreen)); // tab 3 is open
+    await tester.ensureVisible(find.text('Order 2'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Order 2'));
+    await settle(tester);
+    final second = tester.state(find.byType(OrderFormScreen));
+    await tester.ensureVisible(find.byTooltip('Close this order?'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Close this order?'));
+    await settle(tester);
+    await tester.tap(find.text('Confirm'));
+    await settle(tester);
+    // The old tab 3 is now "Order 2", with its own form, and it's open.
+    expect(find.text('Order 3'), findsNothing);
+    expect(second.mounted, isFalse);
+    expect(tester.state(find.byType(OrderFormScreen)), same(third));
+  });
 }

@@ -28,6 +28,10 @@ class _OrderTabsScreenState extends State<OrderTabsScreen> {
   int _nextId = 1;
   int _current = 0;
   final _tabScroll = ScrollController();
+  // GlobalKeys, not ValueKeys: IndexedStack wraps each child, so a plain key
+  // is matched by position and closing a middle tab handed the next tab's
+  // place to the closed tab's form.
+  final Map<int, GlobalKey> _formKeys = {};
 
   @override
   void dispose() {
@@ -67,6 +71,7 @@ class _OrderTabsScreenState extends State<OrderTabsScreen> {
     }
     setState(() {
       _tabs.removeAt(i);
+      _formKeys.remove(id);
       if (_current >= _tabs.length || _current > i) _current = (_current - 1).clamp(0, _tabs.length - 1);
     });
   }
@@ -120,7 +125,7 @@ class _OrderTabsScreenState extends State<OrderTabsScreen> {
         children: [
           for (final id in _tabs)
             TickerMode(
-              key: ValueKey(id),
+              key: _formKeys.putIfAbsent(id, GlobalKey.new),
               enabled: _tabs[_current] == id,
               child: OrderFormScreen(onCreated: () => _remove(id)),
             ),
