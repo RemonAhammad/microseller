@@ -104,7 +104,7 @@ class _OrderTabsScreenState extends State<OrderTabsScreen> {
                       Padding(
                         padding: const EdgeInsetsDirectional.only(end: 8),
                         child: _OrderTab(
-                          label: s.orderTabLabel(i + 1),
+                          label: i == _current ? s.orderTabLabel(i + 1) : '📦 ${i + 1}',
                           selected: i == _current,
                           closeTooltip: s.closeOrderTab,
                           onTap: () => setState(() => _current = i),
