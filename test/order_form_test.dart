@@ -112,11 +112,28 @@ void main() {
     await settle(tester);
   }
 
+  // Sync reads: an async query waits behind a save's open transaction, which
+  // only finishes while the test pumps, so it can hang the test.
   Future<List<Order>> orders(WidgetTester tester) async =>
-      (await tester.runAsync(() => isar.orders.where().findAll()))!;
+      isar.orders.where().findAllSync();
+
+  /// The saved orders, once the save has written one: a busy machine (the
+  /// whole suite at once, or CI) can take longer than [settle].
+  Future<List<Order>> savedOrders(WidgetTester tester) async {
+    // Wait on the screen, never on a query: a query queued behind the save's
+    // open transaction would wait for it forever (it needs pumps to finish).
+    bool done() =>
+        find.textContaining('ORD-0').evaluate().isNotEmpty || find.text('orders list').evaluate().isNotEmpty;
+    await waitForDb(tester, done, what: 'the order being saved');
+    // Let the sale's follow-up work (serials, stock lists) finish too, or
+    // closing the database at the end of the test can wait on it forever.
+    await settle(tester);
+    await settle(tester);
+    return orders(tester);
+  }
 
   Future<Product> reload(WidgetTester tester, Product p) async =>
-      (await tester.runAsync(() => isar.products.get(p.id)))!;
+      isar.products.getSync(p.id)!;
 
   Future<void> tapText(WidgetTester tester, String text) async {
     await tester.ensureVisible(find.text(text).first);
@@ -157,7 +174,7 @@ void main() {
 
       await waitForDb(tester, () => find.textContaining('ORD-001').evaluate().isNotEmpty, what: 'the order being saved');
       expect(find.textContaining('ORD-001'), findsOneWidget);
-      final saved = (await orders(tester)).single;
+      final saved = (await savedOrders(tester)).single;
       expect(saved.customerId, 0);
       expect(saved.customerName, '');
       expect(saved.items.single.qty, 2);
@@ -194,12 +211,12 @@ void main() {
       expect(find.text('S/N: IMEI-2'), findsOneWidget, reason: 'the cart line shows its serial');
 
       await tapText(tester, 'Paid in full');
-      final saved = (await orders(tester)).single;
+      final saved = (await savedOrders(tester)).single;
       expect(saved.items.single.serials, ['IMEI-2']);
       expect(saved.items.single.qty, 1);
       expect(saved.items.single.warrantyMonths, 12);
       expect(saved.totalAmount, 20000);
-      final units = (await tester.runAsync(() => SerialService.ofProduct(isar, phone.id)))!;
+      final units = isar.productSerials.where().productIdEqualTo(phone.id).findAllSync();
       expect({for (final u in units) u.serial: u.status}, {'IMEI-1': SerialStatus.inStock, 'IMEI-2': SerialStatus.sold});
       expect((await reload(tester, phone)).stockQty, 1);
     });
@@ -263,11 +280,11 @@ void main() {
       await tapText(tester, 'New Order');
       await tapText(tester, 'Done');
 
-      final saved = (await orders(tester)).single;
+      final saved = (await savedOrders(tester)).single;
       expect(saved.customerName, 'Karim');
       expect(saved.amountPaid, 0);
       expect(saved.paymentStatus, PaymentStatus.unpaid);
-      final karim = (await tester.runAsync(() => isar.customers.where().findFirst()))!;
+      final karim = isar.customers.where().findFirstSync()!;
       expect(karim.outstandingBalance, 40, reason: 'the due went to their Due Book');
     });
 
@@ -289,7 +306,7 @@ void main() {
       await tapText(tester, 'Soap');
       await tapText(tester, 'Paid in full');
 
-      final saved = (await orders(tester)).single;
+      final saved = (await savedOrders(tester)).single;
       expect(saved.paymentMethod, PaymentMethod.mfs);
       expect(saved.orderStatus, OrderStatus.pending);
       expect((await reload(tester, soap)).stockQty, 10, reason: 'pending: stock not taken');
@@ -312,7 +329,7 @@ void main() {
       expect(find.textContaining('1.25 kg'), findsWidgets);
       await tapText(tester, 'Paid in full');
 
-      final saved = (await orders(tester)).single;
+      final saved = (await savedOrders(tester)).single;
       expect(saved.items.single.qty, 1.25);
       expect(saved.items.single.unit, QuantityUnit.kg);
       expect(saved.totalAmount, 750);
@@ -330,7 +347,7 @@ void main() {
       await confirmSheet(tester, 'Add');
       await tapText(tester, 'Paid in full');
 
-      final saved = (await orders(tester)).single;
+      final saved = (await savedOrders(tester)).single;
       expect(saved.items.single.qty, 0.333);
       expect(saved.totalAmount, 199.8);
       expect((await reload(tester, fish)).stockQty, 4.667);
@@ -388,7 +405,7 @@ void main() {
     await tapText(tester, 'Eggs');
     await tapText(tester, 'Paid in full');
 
-    final saved = (await orders(tester)).single;
+    final saved = (await savedOrders(tester)).single;
     final dozen = saved.items.firstWhere((i) => i.isDozenLine);
     final piece = saved.items.firstWhere((i) => !i.isDozenLine);
     expect(dozen.unit, QuantityUnit.dozen);
@@ -430,7 +447,7 @@ void main() {
     await tapText(tester, 'Done');
     await tapText(tester, 'Paid in full');
 
-    final line = (await orders(tester)).single.items.single;
+    final line = (await savedOrders(tester)).single.items.single;
     expect(line.isDozenLine, isTrue);
     expect(line.unitPrice, 156);
     expect(line.variantCombinationKey, 'Color:Brown');
@@ -462,7 +479,7 @@ void main() {
     expect(find.widgetWithText(ActionChip, '20'), findsNothing, reason: 'the row closes');
 
     await tapText(tester, 'Paid in full');
-    expect((await orders(tester)).single.items.single.qty, 20);
+    expect((await savedOrders(tester)).single.items.single.qty, 20);
   });
 
   testWidgets('Dozen is refused when stock is under 12', (tester) async {

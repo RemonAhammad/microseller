@@ -151,10 +151,12 @@ void main() {
     testWidgets('an edit keeps the email, and a backup round trip carries it', (tester) async {
       await tester.runAsync(seed);
       await pumpScreen(tester, isar: isar, screen: CustomerFormScreen(customerId: customerId));
+      await waitForDb(tester, () => find.text('rahim@shop.com').evaluate().isNotEmpty, what: 'the customer loading');
       expect(find.text('rahim@shop.com'), findsOneWidget);
       await tester.enterText(find.widgetWithText(TextFormField, 'Rahim'), 'Rahim Uddin');
       await tester.tap(find.byType(AppButton));
       await settleDb(tester);
+      await waitForDb(tester, () => find.text(kBelowScreen).evaluate().isNotEmpty, what: 'the form closing after save');
       final edited = await tester.runAsync(() => isar.customers.get(customerId));
       expect(edited!.name, 'Rahim Uddin');
       expect(edited.email, 'rahim@shop.com');

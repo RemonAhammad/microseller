@@ -94,6 +94,8 @@ void main() {
     await reveal(tester, button);
     await tester.tap(button.first);
     await settleDb(tester);
+    // Every save here closes the form; a busy machine needs longer.
+    await waitForDb(tester, () => find.text(kBelowScreen).evaluate().isNotEmpty, what: 'the form closing after save');
   }
 
   group('product form units', skip: isarSkipReason, () {
@@ -235,9 +237,6 @@ void main() {
       expect(await textOf(tester, 'Stock Quantity'), '2');
 
       await save(tester, 'Update Product');
-      // CI's Linux runners are slow: wait for the save to finish (the form
-      // closes), not a fixed number of pumps.
-      await waitForDb(tester, () => find.text(kBelowScreen).evaluate().isNotEmpty, what: 'the form closing after save');
       final units = (await tester.runAsync(() => SerialService.ofProduct(isar, phone.id)))!;
       expect({for (final u in units) u.serial: u.status},
           {'A1': SerialStatus.inStock, 'A2': SerialStatus.removed, 'A3': SerialStatus.inStock});

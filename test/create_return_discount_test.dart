@@ -325,6 +325,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(submit);
     await settleDb(tester);
+    await waitForDb(tester, () => find.byKey(const ValueKey('applyDiscountSwitch')).evaluate().isEmpty,
+        what: 'the return screen closing after save');
     final ret = (await tester.runAsync(() => isar.orders.filter().isReturnEqualTo(true).findFirst()))!;
     expect(ret.totalAmount, 20);
     expect(ret.discountAmount, 0);
