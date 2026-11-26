@@ -90,6 +90,11 @@ const translationsFr = <String, String>{
   'noVariantsHint': 'Aucune variante. Ajoutez des attributs comme Taille, Couleur, etc.',
 
   'addOrder': 'Nouvelle commande',
+  'newOrderTab': "Nouvel onglet de commande",
+  'orderTabLabel': "Commande {n}",
+  'closeOrderTab': "Fermer cette commande ?",
+  'closeOrderTabMessage': "Ce que vous avez saisi dans cet onglet sera perdu.",
+  'orderTabsLimit': "Jusqu'à {count} commandes peuvent être ouvertes à la fois",
   'editOrder': 'Modifier la commande',
   'orderNumber': 'Commande n°',
   'customer': 'Client',

@@ -57,7 +57,11 @@ class OrderFormScreen extends ConsumerStatefulWidget {
   final Order? order;
   final int? orderId;
 
-  const OrderFormScreen({super.key, this.order, this.orderId});
+  /// Set by [OrderTabsScreen]: the form is one tab, without its own app bar,
+  /// and calls this instead of closing when a new order is saved.
+  final VoidCallback? onCreated;
+
+  const OrderFormScreen({super.key, this.order, this.orderId, this.onCreated});
 
   @override
   ConsumerState<OrderFormScreen> createState() => _OrderFormScreenState();
@@ -880,7 +884,12 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
             ),
           );
           await _showInvoiceActions(saved);
-          if (mounted) context.pop();
+          if (!mounted) return;
+          if (widget.onCreated != null) {
+            widget.onCreated!();
+          } else {
+            context.pop();
+          }
         }
       }
     } on OrderDateTooLate catch (e) {
@@ -1151,7 +1160,9 @@ class _OrderFormScreenState extends ConsumerState<OrderFormScreen> {
     final cs = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(_isEditing ? s.editOrder : s.addOrder), actions: const [SectionHelpButton('order_form')]),
+      appBar: widget.onCreated != null
+          ? null
+          : AppBar(title: Text(_isEditing ? s.editOrder : s.addOrder), actions: const [SectionHelpButton('order_form')]),
       body: Column(
         children: [
           Expanded(

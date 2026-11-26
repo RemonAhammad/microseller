@@ -90,6 +90,11 @@ const translationsUr = <String, String>{
   'noVariantsHint': 'کوئی ویریئنٹ نہیں۔ سائز، رنگ وغیرہ جیسی خصوصیات شامل کریں۔',
 
   'addOrder': 'نیا آرڈر',
+  'newOrderTab': "نئے آرڈر کا ٹیب",
+  'orderTabLabel': "آرڈر {n}",
+  'closeOrderTab': "یہ آرڈر بند کریں؟",
+  'closeOrderTabMessage': "اس ٹیب میں درج کی گئی معلومات ضائع ہو جائیں گی۔",
+  'orderTabsLimit': "ایک وقت میں زیادہ سے زیادہ {count} آرڈر کھولے جا سکتے ہیں",
   'editOrder': 'آرڈر میں ترمیم',
   'orderNumber': 'آرڈر نمبر',
   'customer': 'گاہک',

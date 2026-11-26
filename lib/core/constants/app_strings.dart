@@ -642,6 +642,11 @@ class _L10nStrings {
     QuantityUnit.pack: 'unitSymbolPack',
   };
   String rowsSkipped(int count) => _l10n.tr('rowsSkipped').replaceAll('{count}', '$count');
+  String get newOrderTab => _l10n.tr('newOrderTab');
+  String orderTabLabel(int n) => _l10n.tr('orderTabLabel').replaceAll('{n}', '$n');
+  String get closeOrderTab => _l10n.tr('closeOrderTab');
+  String get closeOrderTabMessage => _l10n.tr('closeOrderTabMessage');
+  String orderTabsLimit(int count) => _l10n.tr('orderTabsLimit').replaceAll('{count}', '$count');
   String andMore(int count) => _l10n.tr('andMore').replaceAll('{count}', '$count');
 
   String get transactionId => _l10n.tr('transactionId');

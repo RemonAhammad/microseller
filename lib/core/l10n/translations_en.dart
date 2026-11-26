@@ -90,6 +90,11 @@ const translationsEn = <String, String>{
   'noVariantsHint': 'No variants. Add attributes like Size, Color, etc.',
 
   'addOrder': 'New Order',
+  'newOrderTab': "New order tab",
+  'orderTabLabel': "Order {n}",
+  'closeOrderTab': "Close this order?",
+  'closeOrderTabMessage': "What you entered in this tab will be lost.",
+  'orderTabsLimit': "Up to {count} orders can be open at once",
   'editOrder': 'Edit Order',
   'orderNumber': 'Order #',
   'customer': 'Customer',

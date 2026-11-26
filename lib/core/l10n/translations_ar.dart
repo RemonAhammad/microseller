@@ -90,6 +90,11 @@ const translationsAr = <String, String>{
   'noVariantsHint': 'لا توجد متغيرات. أضف خصائص مثل المقاس واللون وغيرها.',
 
   'addOrder': 'طلب جديد',
+  'newOrderTab': "علامة تبويب طلب جديد",
+  'orderTabLabel': "طلب {n}",
+  'closeOrderTab': "إغلاق هذا الطلب؟",
+  'closeOrderTabMessage': "سيُفقد ما أدخلته في علامة التبويب هذه.",
+  'orderTabsLimit': "يمكن فتح {count} طلبات كحد أقصى في وقت واحد",
   'editOrder': 'تعديل الطلب',
   'orderNumber': 'رقم الطلب',
   'customer': 'العميل',

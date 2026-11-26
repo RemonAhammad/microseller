@@ -90,6 +90,11 @@ const translationsId = <String, String>{
   'noVariantsHint': 'Tidak ada varian. Tambahkan atribut seperti Ukuran, Warna, dll.',
 
   'addOrder': 'Pesanan Baru',
+  'newOrderTab': "Tab pesanan baru",
+  'orderTabLabel': "Pesanan {n}",
+  'closeOrderTab': "Tutup pesanan ini?",
+  'closeOrderTabMessage': "Yang Anda isi di tab ini akan hilang.",
+  'orderTabsLimit': "Maksimal {count} pesanan dapat dibuka sekaligus",
   'editOrder': 'Edit Pesanan',
   'orderNumber': 'Pesanan #',
   'customer': 'Pelanggan',

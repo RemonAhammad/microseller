@@ -90,6 +90,11 @@ const translationsEs = <String, String>{
   'noVariantsHint': 'Sin variantes. Agrega atributos como Talla, Color, etc.',
 
   'addOrder': 'Nuevo pedido',
+  'newOrderTab': "Nueva pestaña de pedido",
+  'orderTabLabel': "Pedido {n}",
+  'closeOrderTab': "¿Cerrar este pedido?",
+  'closeOrderTabMessage': "Se perderá lo que escribiste en esta pestaña.",
+  'orderTabsLimit': "Puedes tener hasta {count} pedidos abiertos a la vez",
   'editOrder': 'Editar pedido',
   'orderNumber': 'Pedido #',
   'customer': 'Cliente',

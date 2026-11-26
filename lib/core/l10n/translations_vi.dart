@@ -90,6 +90,11 @@ const translationsVi = <String, String>{
   'noVariantsHint': 'Chưa có biến thể. Thêm thuộc tính như Kích cỡ, Màu sắc, v.v.',
 
   'addOrder': 'Đơn hàng mới',
+  'newOrderTab': "Tab đơn hàng mới",
+  'orderTabLabel': "Đơn {n}",
+  'closeOrderTab': "Đóng đơn hàng này?",
+  'closeOrderTabMessage': "Những gì bạn đã nhập trong tab này sẽ bị mất.",
+  'orderTabsLimit': "Có thể mở tối đa {count} đơn hàng cùng lúc",
   'editOrder': 'Sửa đơn hàng',
   'orderNumber': 'Đơn hàng #',
   'customer': 'Khách hàng',

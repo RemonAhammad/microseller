@@ -26,6 +26,7 @@ import '../../features/products/presentation/product_form_screen.dart';
 import '../../features/products/presentation/product_detail_screen.dart';
 import '../../features/orders/presentation/order_list_screen.dart';
 import '../../features/orders/presentation/order_form_screen.dart';
+import '../../features/orders/presentation/order_tabs_screen.dart';
 import '../../features/orders/presentation/order_detail_screen.dart';
 import '../../features/customers/presentation/customer_list_screen.dart';
 import '../../features/customers/presentation/due_book_screen.dart';
@@ -154,7 +155,7 @@ final appRouter = GoRouter(
             routes: [
               GoRoute(
                 path: 'add',
-                pageBuilder: (_, s) => _subPage(const OrderFormScreen(), s),
+                pageBuilder: (_, s) => _subPage(const OrderTabsScreen(), s),
               ),
               GoRoute(
                 path: ':id',

@@ -90,6 +90,11 @@ const translationsTh = <String, String>{
   'noVariantsHint': 'ไม่มีตัวเลือก เพิ่มคุณสมบัติ เช่น ขนาด สี เป็นต้น',
 
   'addOrder': 'คำสั่งซื้อใหม่',
+  'newOrderTab': "แท็บคำสั่งซื้อใหม่",
+  'orderTabLabel': "คำสั่งซื้อ {n}",
+  'closeOrderTab': "ปิดคำสั่งซื้อนี้?",
+  'closeOrderTabMessage': "ข้อมูลที่กรอกในแท็บนี้จะหายไป",
+  'orderTabsLimit': "เปิดคำสั่งซื้อพร้อมกันได้สูงสุด {count} รายการ",
   'editOrder': 'แก้ไขคำสั่งซื้อ',
   'orderNumber': 'คำสั่งซื้อ #',
   'customer': 'ลูกค้า',

@@ -90,6 +90,11 @@ const translationsBn = <String, String>{
   'noVariantsHint': 'কোনো ভ্যারিয়েন্ট নেই। সাইজ, রং ইত্যাদির মতো অ্যাট্রিবিউট যোগ করুন।',
 
   'addOrder': 'নতুন অর্ডার',
+  'newOrderTab': "নতুন অর্ডার ট্যাব",
+  'orderTabLabel': "অর্ডার {n}",
+  'closeOrderTab': "এই অর্ডারটি বন্ধ করবেন?",
+  'closeOrderTabMessage': "এই ট্যাবে যা লিখেছেন তা মুছে যাবে।",
+  'orderTabsLimit': "একসাথে সর্বোচ্চ {count}টি অর্ডার খোলা যায়",
   'editOrder': 'অর্ডার সম্পাদনা',
   'orderNumber': 'অর্ডার #',
   'customer': 'গ্রাহক',

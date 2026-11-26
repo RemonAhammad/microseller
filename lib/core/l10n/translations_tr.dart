@@ -90,6 +90,11 @@ const translationsTr = <String, String>{
   'noVariantsHint': 'Varyant yok. Beden, Renk gibi özellikler ekleyin.',
 
   'addOrder': 'Yeni Sipariş',
+  'newOrderTab': "Yeni sipariş sekmesi",
+  'orderTabLabel': "Sipariş {n}",
+  'closeOrderTab': "Bu sipariş kapatılsın mı?",
+  'closeOrderTabMessage': "Bu sekmeye girdikleriniz kaybolacak.",
+  'orderTabsLimit': "Aynı anda en fazla {count} sipariş açık olabilir",
   'editOrder': 'Siparişi Düzenle',
   'orderNumber': 'Sipariş No',
   'customer': 'Müşteri',
